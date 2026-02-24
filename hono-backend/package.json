@@ -2,6 +2,7 @@
   "name": "hono-27012025",
   "type": "module",
   "scripts": {
+    "example": "tsx watch src/index.ts",
     "dev": "tsx watch src/index.ts",
     "databaza": "tsx src/db-example.ts",
     "build": "tsc",
