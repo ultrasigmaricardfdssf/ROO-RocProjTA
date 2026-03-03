@@ -1,0 +1,1 @@
+Minulu dvojhodinovku som robil backend, zatial som skoncil s preparations pre AUTH system, instalovanym ROUTERom a database managerom (rozhodol som sa mat viacero TS skriptov pre kazdu databazu, ktoru zlucuje singleton DB manager)
