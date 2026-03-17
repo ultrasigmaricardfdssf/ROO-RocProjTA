@@ -2,7 +2,7 @@ class AuthService {
     user: any = null
   
     async login(email: string, password: string) {
-      const res = await fetch('/api/login', {
+      const res = await fetch('http://localhost:3000/login', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -13,7 +13,7 @@ class AuthService {
     }
   
     async fetchUser() {
-      const res = await fetch('/api/me', {
+      const res = await fetch('http://localhost:3000/me', {
         credentials: 'include'
       })
   
@@ -23,7 +23,7 @@ class AuthService {
     }
   
     logout() {
-      fetch('/api/logout', { method: 'POST', credentials: 'include' })
+      fetch('http://localhost:3000/logout', { method: 'POST', credentials: 'include' })
       this.user = null
     }
   

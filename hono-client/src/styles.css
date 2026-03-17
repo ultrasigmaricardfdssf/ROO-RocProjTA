@@ -1,1 +1,21 @@
 @import 'tailwindcss';
+
+header {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100vw;
+    padding: 8px 12px;
+    gap: 32px;
+    background-color: gray;
+}
+
+header div{
+    width: 20%;
+    background-color: red;
+}
+
+header div:nth-child(2){
+    width: 60%;
+    background-color: green;
+}
