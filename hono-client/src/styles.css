@@ -19,3 +19,8 @@ header div:nth-child(2){
     width: 60%;
     background-color: green;
 }
+
+header div:nth-child(2) input[type="text"]{
+    width: 100%;
+    color: red;
+}
