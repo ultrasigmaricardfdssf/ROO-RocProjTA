@@ -1,24 +1,30 @@
-import { Request, Response } from 'express'
-import { authService } from './auth.service'
+import type { Context } from 'hono'
+import { setCookie } from 'hono/cookie'
+import { authService } from './auth.service.js'
+import { dbmanager } from '../db-manager.js'
 
-export const login = async (req: Request, res: Response) => {
-  const { email, password } = req.body
+export const login = async (c: Context) => {
+  const { email, password } = await c.req.json()
 
-  // Fetch user from DB (example)
-  const user = getUserByEmail(email)
+  const user = dbmanager.users.getUserByEmail(email)
 
-  if (!user) return res.status(401).json({ message: 'Invalid credentials' })
+  if (!user) {
+    return c.json({ message: 'Invalid credentials' }, 401)
+  }
 
   const valid = await authService.verify(password, user.password)
 
-  if (!valid) return res.status(401).json({ message: 'Invalid credentials' })
+  if (!valid) {
+    return c.json({ message: 'Invalid credentials' }, 401)
+  }
 
   const token = authService.generateToken(user.id)
 
-  res.cookie('token', token, {
+  setCookie(c, 'token', token, {
     httpOnly: true,
     secure: false, // true in production (HTTPS)
+    path: '/',
   })
 
-  res.json({ id: user.id, email: user.email })
+  return c.json({ id: user.id, email: user.email })
 }

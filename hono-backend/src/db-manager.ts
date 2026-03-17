@@ -2,6 +2,8 @@ import { UsersDB } from './DB-sys/db-users.js';
 
 // some kind of setup, ig??
 
-const users = new UsersDB();
+class DBManager{
+    users = new UsersDB();
+}
 
-export { users };
+export const dbmanager = new DBManager();

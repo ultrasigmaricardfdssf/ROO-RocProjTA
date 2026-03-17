@@ -1,7 +1,9 @@
 import Database from 'better-sqlite3'
 
+type user{n}
+
 export class UsersDB {
-    private db : any
+    private db : Database.Database
 
     constructor(){
         this.db = new Database('databases/users.db');
@@ -26,18 +28,24 @@ export class UsersDB {
               return "sigmaaa";
           }
           
-          // const result = db
-          //   .prepare(
-          //     `
-          //   INSERT INTO users (email, username)
-          //   VALUES (?, ?)
-          // `,
-          //   )
-          //   .run(mail, username)
+          /*const resulta = this.db
+            .prepare(
+              `
+            INSERT INTO users (email, username)
+            VALUES (?, ?)
+          `,
+            )
+            .run(mail, username)*/
           
-          const result = this.db.prepare('SELECT * FROM users WHERE username = ?').all('adam')
+          // const result = this.db.prepare('SELECT * FROM users WHERE username = ?').all('adam')
           
-          console.log(result)
+          // console.log("ih")
     }
 
+    async getUserByEmail(email : string) {
+      const result = this.db.prepare(`
+            SELECT * FROM users WHERE email = ?;  
+          `).all(email)[0];
+      return result != null ? result : null;
+    }
 }

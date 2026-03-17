@@ -1,16 +1,21 @@
-import { Request, Response, NextFunction } from 'express'
-import { authService } from './auth.service'
+import type { Context, Next } from 'hono'
+import { authService } from './auth.service.js'
 
-export function requireAuth(req: Request, res: Response, next: NextFunction) {
-  const token = req.cookies.token
+export const requireAuth = async (c: Context, next: Next) => {
+  const token = c.req.header('Authorization')?.replace('Bearer ', '')
 
-  if (!token) return res.status(401).json({ message: 'Unauthorized' })
+  if (!token) {
+    return c.json({ message: 'Unauthorized' }, 401)
+  }
 
   try {
     const payload = authService.verifyToken(token)
-    req.user = payload
-    next()
+
+    // attach user to context
+    c.set('user', payload)
+
+    await next()
   } catch {
-    return res.status(401).json({ message: 'Invalid token' })
+    return c.json({ message: 'Invalid token' }, 401)
   }
 }
