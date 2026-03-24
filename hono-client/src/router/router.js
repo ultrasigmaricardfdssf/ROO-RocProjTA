@@ -5,7 +5,12 @@ const routes = [
         path: '/',
         name: 'home',
         component: import('../views/Home.vue')
-    }
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: import('../views/Register.vue')
+  }
 ];
 
 const router = createRouter({

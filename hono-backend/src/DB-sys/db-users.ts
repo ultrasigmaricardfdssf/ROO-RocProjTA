@@ -1,6 +1,16 @@
 import Database from 'better-sqlite3'
+import bcrypt from 'bcrypt'
 
-type user{n}
+type user = {
+  id: number;
+  username: string;
+  email: string;
+  password: string;
+  role: string;
+  notified: boolean;
+  description: string;
+  created_at: number;
+}
 
 export class UsersDB {
     private db : Database.Database
@@ -24,10 +34,6 @@ export class UsersDB {
           const mail = 'b@a.com'
           const username = 'adam'
           
-          function addUser(email : string){
-              return "sigmaaa";
-          }
-          
           /*const resulta = this.db
             .prepare(
               `
@@ -47,5 +53,26 @@ export class UsersDB {
             SELECT * FROM users WHERE email = ?;  
           `).all(email)[0];
       return result != null ? result : null;
+    }
+
+    async getUserByUsername(username : string)
+    {
+
+    }
+
+    async register(username : string, email : string, password : string)
+    {
+      let hashedPassword = await bcrypt.hash(password, 10);
+
+      const result = this.db
+            .prepare(
+              `
+            INSERT INTO users (username, email, password, role_id)
+            VALUES (?, ?, ?, 0)
+          `,
+            )
+            .run(username, email, hashedPassword);
+
+      return result;
     }
 }
