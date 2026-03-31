@@ -1,5 +1,20 @@
+import { useRouter } from "vue-router";
+
+type user = {
+  id: number;
+  username: string;
+  email: string;
+  password: string;
+  role: string;
+  notified: boolean;
+  description: string;
+  created_at: number;
+}
+
+const router = useRouter();
+
 class AuthService {
-    user: any = null
+    user : user = null
   
     async login(email: string, password: string) {
       const res = await fetch('http://localhost:3000/login', {
@@ -8,8 +23,16 @@ class AuthService {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       })
-  
+
+      if(!res.ok)
+        {
+          if(res.status == 401)
+              throw new Error('CONNECTION_ERROR');
+          throw new Error('LOGIN_FAILED');
+        }
+
       this.user = await res.json()
+      router.push('/');
     }
   
     async fetchUser() {

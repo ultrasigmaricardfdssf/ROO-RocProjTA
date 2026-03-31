@@ -1,5 +1,6 @@
 <script setup>
     import { ref } from 'vue'
+    import { useRouter } from 'vue-router'
 
     const username = ref('');
     const email = ref('');
@@ -31,16 +32,15 @@
   });
 
   const responseSuccess = await response.ok;
-  /*if(!response.ok){
-    const responseJson = await response.json();
+  const res = await response.json();
+  if(!response.ok){
     let errorStr = "";
-    responseJson?.error.forEach(err => {
+    res?.error.forEach(err => {
         errorStr += err.message + "\n";
     });
     error.value = errorStr;
-  }*/
- const res = await response.json();
- error.value = res;
+    return;
+  }
     }
 </script>
 

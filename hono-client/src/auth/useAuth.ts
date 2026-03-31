@@ -2,7 +2,7 @@
 import { reactive } from 'vue'
 import { authService } from './authService'
 
-const state = reactive({
+const state = reactive({ // :))))))))))))))))))))
   user: authService.fetchUser()
 })
 
@@ -11,7 +11,7 @@ export function useAuth() {
     user: state.user,
     login: (email : string, password : string) => {
       authService.login(email, password)
-      state.user = authService.fetchUser()
+      //state.user = authService.fetchUser()
     },
     logout: () => {
       authService.logout()
