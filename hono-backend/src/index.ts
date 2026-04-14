@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import * as z from 'zod'
 import { sValidator } from '@hono/standard-validator'
+import 'dotenv/config';
 
 import { dbmanager } from './db-manager.js'
 
@@ -15,16 +16,24 @@ const registerSchema = z.object({
   password: z.string(),
 })
 
+const loginSchema = z.object([]);
+
 app.post('/register', sValidator('json', registerSchema), async (c) => {
   const body = c.req.valid('json');
   const result = dbmanager.users.register(body.username, body.email, body.password);
   return c.json(result);
 })
 
+app.post('/login', async (c) => {
+  const body = c.req.json();
+  //const result = dbmanager.users.register(body.username, body.email, body.password);
+  return c.json(body);
+})
+
 serve(
   {
     fetch: app.fetch,
-    port: 3000,
+    port: Number(process.env.SERVER_PORT || 3000),
   },
   (info) => {
     console.log(`Server is running on http://localhost:${info.port}`)

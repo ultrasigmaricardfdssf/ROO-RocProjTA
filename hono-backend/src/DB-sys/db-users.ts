@@ -1,16 +1,6 @@
 import Database from 'better-sqlite3'
 import bcrypt from 'bcrypt'
-
-type user = {
-  id: number;
-  username: string;
-  email: string;
-  password: string;
-  role: string;
-  notified: boolean;
-  description: string;
-  created_at: number;
-}
+import type { User } from '../auth/auth.service.js'
 
 export class UsersDB {
     private db : Database.Database
@@ -48,21 +38,35 @@ export class UsersDB {
           // console.log("ih")
     }
 
-    async getUserByEmail(email : string) {
+    jsonToUser(json : any) : User{
+      return {
+        id: json.id,
+        username: json.username,
+        email: json.email,
+        password: json.password,
+        role: json.role,
+        notified: json.notified,
+        description: json.description,
+        created_at: json.created_at
+        
+      }
+    }
+
+    getUserByEmail(email : string) : User | null {
       const result = this.db.prepare(`
             SELECT * FROM users WHERE email = ?;  
           `).all(email)[0];
-      return result != null ? result : null;
+      return result != null ? this.jsonToUser(result) : null;
     }
 
-    async getUserByUsername(username : string)
+    getUserByUsername(username : string)
     {
 
     }
 
-    async register(username : string, email : string, password : string)
+    register(username : string, email : string, password : string)
     {
-      let hashedPassword = await bcrypt.hash(password, 10);
+      let hashedPassword = bcrypt.hashSync(password, 10);
 
       const result = this.db
             .prepare(

@@ -1,18 +1,18 @@
 import type { Context } from 'hono'
 import { setCookie } from 'hono/cookie'
-import { authService } from './auth.service.js'
+import { authService, type User } from './auth.service.js'
 import { dbmanager } from '../db-manager.js'
 
 export const login = async (c: Context) => {
   const { email, password } = await c.req.json()
 
-  const user = dbmanager.users.getUserByEmail(email)
+  const user : User | null = dbmanager.users.getUserByEmail(email);
 
   if (!user) {
     return c.json({ message: 'Invalid credentials' }, 401)
   }
 
-  const valid = await authService.verify(password, user.password)
+  const valid = authService.verify(password, user.password)
 
   if (!valid) {
     return c.json({ message: 'Invalid credentials' }, 401)

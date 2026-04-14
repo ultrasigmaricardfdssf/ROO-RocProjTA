@@ -1,6 +1,9 @@
 <script setup>
     import { ref } from 'vue'
     import { useRouter } from 'vue-router'
+    import { useAuth } from '../auth/useAuth.ts'
+
+    const { user, login, logout, isAuthenticated } = useAuth();
 
     const username = ref('');
     const email = ref('');
@@ -41,6 +44,7 @@
     error.value = errorStr;
     return;
   }
+  useAuth.login();
     }
 </script>
 

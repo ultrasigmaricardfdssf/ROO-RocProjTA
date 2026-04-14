@@ -1,5 +1,7 @@
 <script setup>
-
+    import { authService } from '../auth/authService.ts';
+    import { useAuth } from '../auth/useAuth.ts';
+    const { user, login, logout, isAuthenticated } = useAuth();
 </script>
 
 <template>
@@ -26,6 +28,7 @@
                     </RouterLink></div>
                 </div>
             </div>
+            <p v-if="user">SIGMAMAMAMMAMA</p>
         </header>
     </nav>
 </template>

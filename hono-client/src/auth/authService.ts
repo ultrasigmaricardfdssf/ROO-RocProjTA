@@ -1,6 +1,6 @@
 import { useRouter } from "vue-router";
 
-type user = {
+export type User = {
   id: number;
   username: string;
   email: string;
@@ -12,12 +12,13 @@ type user = {
 }
 
 const router = useRouter();
+const serverPath = `http://localhost:${Number(3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000)}/`;
 
 class AuthService {
-    user : user = null
+    user : User = null
   
     async login(email: string, password: string) {
-      const res = await fetch('http://localhost:3000/login', {
+      const res = await fetch(serverPath + "login", {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -36,7 +37,7 @@ class AuthService {
     }
   
     async fetchUser() {
-      const res = await fetch('http://localhost:3000/me', {
+      const res = await fetch(serverPath + "me", {
         credentials: 'include'
       })
   
@@ -46,7 +47,7 @@ class AuthService {
     }
   
     logout() {
-      fetch('http://localhost:3000/logout', { method: 'POST', credentials: 'include' })
+      fetch(serverPath + 'logout', { method: 'POST', credentials: 'include' })
       this.user = null
     }
   
