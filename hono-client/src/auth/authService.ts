@@ -1,4 +1,4 @@
-import { useRouter } from "vue-router";
+import router from "../router/router.js";
 
 export type User = {
   id: number;
@@ -11,11 +11,10 @@ export type User = {
   created_at: number;
 }
 
-const router = useRouter();
 const serverPath = `http://localhost:${Number(3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000 || 3000)}/`;
 
 class AuthService {
-    user : User = null
+    user: User | null = null
   
     async login(email: string, password: string) {
       const res = await fetch(serverPath + "login", {
@@ -28,8 +27,8 @@ class AuthService {
       if(!res.ok)
         {
           if(res.status == 401)
-              throw new Error('CONNECTION_ERROR');
-          throw new Error('LOGIN_FAILED');
+              throw new Error('LOGIN_FAILED');
+          throw new Error('CONNECTION_ERROR ');
         }
 
       this.user = await res.json()

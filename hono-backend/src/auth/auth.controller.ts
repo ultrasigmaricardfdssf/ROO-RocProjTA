@@ -6,6 +6,8 @@ import { dbmanager } from '../db-manager.js'
 export const login = async (c: Context) => {
   const { email, password } = await c.req.json()
 
+  console.log(email + " " + password)
+
   const user : User | null = dbmanager.users.getUserByEmail(email);
 
   if (!user) {
@@ -26,5 +28,5 @@ export const login = async (c: Context) => {
     path: '/',
   })
 
-  return c.json({ id: user.id, email: user.email })
+  return c.json(user)
 }

@@ -9,6 +9,7 @@
         <header>
             <div class="headerCell"><RouterLink to="/">
                     <p>ahoj sigma</p>
+                    <p v-if="user">ahoj sigma</p>
                 </RouterLink></div>
             <div>
                 <input type="text" placeholder="Search...">
@@ -20,7 +21,7 @@
                     <div class="dropdownItem"><RouterLink to="/register">
                         <p>ahoj sigma</p>
                     </RouterLink></div>
-                    <div class="dropdownItem"><RouterLink to="/">
+                    <div class="dropdownItem"><RouterLink to="/login">
                         <p>ahoj sigma</p>
                     </RouterLink></div>
                     <div class="dropdownItem"><RouterLink to="/">

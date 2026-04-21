@@ -64,6 +64,13 @@ export class UsersDB {
 
     }
 
+    getUserById(id : number) : User | null {
+      const result = this.db.prepare(`
+            SELECT * FROM users WHERE id = ?;  
+          `).all(id)[0];
+      return result != null ? this.jsonToUser(result) : null;
+    }
+
     register(username : string, email : string, password : string)
     {
       let hashedPassword = bcrypt.hashSync(password, 10);

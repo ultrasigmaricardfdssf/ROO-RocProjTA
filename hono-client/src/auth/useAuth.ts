@@ -1,6 +1,6 @@
 // auth/useAuth.ts
-import { reactive } from 'vue'
-import { authService, User } from './authService'
+import { reactive, toRefs } from 'vue'
+import { authService, type User } from './authService'
 
 const state = reactive({ // :))))))))))))))))))))
   user : null as User | null
@@ -8,10 +8,10 @@ const state = reactive({ // :))))))))))))))))))))
 
 export function useAuth() {
   return {
-    user: state.user,
-    login: (email : string, password : string) => {
-      authService.login(email, password)
-      authService.fetchUser().then(u => {state.user = authService.user})
+    ...toRefs(state),
+    login: async (email : string, password : string) => {
+      await authService.login(email, password)
+      state.user = authService.user
     },
     logout: () => {
       authService.logout()
