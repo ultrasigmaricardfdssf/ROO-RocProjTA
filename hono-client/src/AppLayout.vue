@@ -115,10 +115,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-import { useAuth } from '@/composables/useAuth'
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+import { useAuth } from "@/composables/useAuth";
 
 const route = useRoute();
 const router = useRouter();
@@ -311,7 +311,9 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside));
 /* Dropdown animation */
 .dropdown-enter-active,
 .dropdown-leave-active {
-  transition: opacity 0.15s, transform 0.15s;
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
 }
 .dropdown-enter-from,
 .dropdown-leave-to {
