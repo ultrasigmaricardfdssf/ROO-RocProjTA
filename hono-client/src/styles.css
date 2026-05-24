@@ -1,4 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap');
 @import 'tailwindcss';
+
+:root {
+  --navy:       #2563a8;
+  --navy-dark:  #1a4a8a;
+  --navy-light: #3a7bc8;
+  --blue-pale:  #dbeafe;
+  --blue-soft:  #eff6ff;
+  --orange:     #f59e0b;
+  --orange-pale:#fef3c7;
+  --red:        #ef4444;
+  --red-pale:   #fee2e2;
+  --green:      #22c55e;
+  --purple:     #7c3aed;
+  --text:       #1e293b;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+  --border:     #cbd5e1;
+  --border-dash:#93c5fd;
+  --bg:         #f8fafc;
+  --card:       #ffffff;
+  --radius-sm:  6px;
+  --radius:     12px;
+  --radius-lg:  20px;
+  --shadow:     0 2px 8px rgba(37,99,168,0.10);
+  --shadow-lg:  0 4px 24px rgba(37,99,168,0.15);
+  --font:       'Nunito', sans-serif;
+  --font-mono:  'Fira Code', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* Pill button base */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-family: var(--font);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 2px solid transparent;
+}
+
+.pill-nav {
+  padding: 4px 14px;
+  font-size: 13px;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  border-color: rgba(255,255,255,0.35);
+}
+.pill-nav:hover { background: rgba(255,255,255,0.28); }
+.pill-nav.active { background: #fff; color: var(--navy); }
+
+/* Dashed border utility */
+.dashed {
+  border: 2px dashed var(--border-dash);
+  border-radius: var(--radius);
+}
+
+/* Card */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
 
 header {
     display: flex;
