@@ -36,118 +36,126 @@
 </template>
 
 <script setup lang="ts">
-export interface Topic {
-  id: string;
-  title: string;
-  preview: string;
-  authorName: string;
-  authorAvatar?: string;
-  postedAgo: string;
-  views: number;
-  tags?: string[];
-  replyCount?: number;
-}
-defineProps<{ topic: Topic }>();
+  export interface Topic {
+    id: string;
+    title: string;
+    preview: string;
+    authorName: string;
+    authorAvatar?: string;
+    postedAgo: string;
+    views: number;
+    tags?: string[];
+    replyCount?: number;
+  }
+  defineProps<{ topic: Topic }>();
 </script>
 
 <style scoped>
-.topic-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: var(--blue-soft);
-  border: 2px solid var(--blue-pale);
-  border-radius: var(--radius);
-  padding: 12px 16px;
-  cursor: pointer;
-  transition:
-    box-shadow 0.15s,
-    border-color 0.15s;
-  text-decoration: none;
-  color: inherit;
-}
-.topic-card:hover {
-  border-color: var(--navy-light);
-  box-shadow: var(--shadow);
-}
+  .topic-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--blue-soft);
+    border: 2px solid var(--blue-pale);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    cursor: pointer;
+    transition:
+      box-shadow 0.15s,
+      border-color 0.15s;
+    text-decoration: none;
+    color: inherit;
+  }
 
-.topic-avatar {
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  background: var(--purple);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border-color: var(--border-dash) !important;
-}
-.ta-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.ta-initials {
-  color: #fff;
-  font-weight: 700;
-  font-size: 14px;
-}
+  .topic-card:hover {
+    border-color: var(--navy-light);
+    box-shadow: var(--shadow);
+  }
 
-.topic-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-}
-.topic-title {
-  font-weight: 700;
-  font-size: 15px;
-  color: var(--text);
-}
-.topic-preview {
-  font-size: 13px;
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+  .topic-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--purple);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-color: var(--border-dash) !important;
+  }
 
-.topic-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-  flex-shrink: 0;
-}
-.meta-time {
-  font-size: 11px;
-  color: var(--text-light);
-  white-space: nowrap;
-}
+  .ta-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 
-.topic-tags {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.tag {
-  padding: 2px 10px;
-  font-size: 11px;
-  background: rgba(255, 255, 255, 0.7);
-  color: var(--text-muted);
-  border: 1.5px solid var(--border);
-}
-.reply-count {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--red);
-  border-color: var(--red) !important;
-}
+  .ta-initials {
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .topic-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .topic-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+  }
+
+  .topic-preview {
+    font-size: 13px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .topic-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .meta-time {
+    font-size: 11px;
+    color: var(--text-light);
+    white-space: nowrap;
+  }
+
+  .topic-tags {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .tag {
+    padding: 2px 10px;
+    font-size: 11px;
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--text-muted);
+    border: 1.5px solid var(--border);
+  }
+
+  .reply-count {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--red);
+    border-color: var(--red) !important;
+  }
 </style>

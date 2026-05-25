@@ -29,7 +29,7 @@ export function requireOwnerOrAdmin(getTargetUserId: (c: Context) => string | un
     if (!session) throw new AuthError('You must be logged in', 'NOT_AUTHENTICATED')
 
     const targetId = getTargetUserId(c)
-    if (!targetId) throw new ForbiddenError('Missing resource ID')   // ← handle undefined
+    if (!targetId) throw new ForbiddenError('Missing resource ID')
 
     const isOwner = session.userId === targetId
     const isAdmin = session.role === 'admin'

@@ -14,20 +14,17 @@ app.onError((err, c) => {
   return c.json({ error: { message: 'Internal server error', code: 'SERVER_ERROR' } }, 500)
 })
 
-// Auth routes (public)
 app.route('/auth', auth)
 
-// Protected: any logged-in user
 app.get('/posts', requireAuth, async (c) => {
-  // ...
+  // 
 })
 
-// Protected: owner or admin only
 app.put(
   '/users/:id/profile',
   requireOwnerOrAdmin((c) => c.req.param('id')),
   async (c) => {
-    // ...
+    // 
   }
 )
 

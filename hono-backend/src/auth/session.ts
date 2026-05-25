@@ -9,7 +9,7 @@ const COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 export interface SessionPayload {
   userId: string
   email: string
-  role: 'user' | 'admin'
+  role: number
   exp?: number
 }
 
@@ -17,7 +17,7 @@ export async function createSession(c: Context, payload: Omit<SessionPayload, 'e
   const token = await sign(
     { ...payload, exp: Math.floor(Date.now() / 1000) + COOKIE_MAX_AGE },
     JWT_SECRET,
-    'HS256'        // ← third argument required
+    'HS256'
   )
 
   setCookie(c, COOKIE_NAME, token, {

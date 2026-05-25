@@ -7,10 +7,12 @@ const router = createRouter({
     {
       path: "/",
       component: () => import("@/views/Home.vue"),
+      meta: { requiresAuth: true },
     },
     {
       path: "/user/:id",
       component: () => import("@/views/UserView.vue"),
+      meta: { requiresAuth: true },
     },
     {
       path: "/settings",
@@ -30,6 +32,7 @@ const router = createRouter({
     {
       path: "/search",
       component: () => import("@/views/Search.vue"),
+      meta: { requiresAuth: true },
     },
     {
       path: "/login",
@@ -45,7 +48,6 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   const store = useAuthStore();
 
-  // Rehydrate from cookie on first load
   if (!store.user && !store.hydrated) {
     await store.fetchMe();
   }

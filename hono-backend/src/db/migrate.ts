@@ -6,5 +6,5 @@ const sqlite = new Database('app.db')
 const db = drizzle(sqlite)
 
 migrate(db, { migrationsFolder: './drizzle' })
-console.log('✅ Migrations applied')
+console.log('Migration successful')
 sqlite.close()
