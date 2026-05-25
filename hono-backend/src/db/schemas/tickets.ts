@@ -1,5 +1,4 @@
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
-import { createId } from '@paralleldrive/cuid2'
 import { users } from './users.js'
 
 export const tickets = sqliteTable('ticket', {
@@ -17,8 +16,8 @@ export type Ticket = typeof tickets.$inferSelect
 export type NewTicket = typeof tickets.$inferInsert
 
 export const ticketPriorities = sqliteTable('ticketPriority', {
-  id : integer('id').primaryKey({ autoIncrement: true }),
-  color : text('color').default('#AAAAAA'),
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  color: text('color').default('#AAAAAA'),
   name: text('name').notNull()
 })
 
@@ -26,11 +25,11 @@ export type TicketPriority = typeof ticketPriorities.$inferSelect
 export type NewTicketPriority = typeof ticketPriorities.$inferInsert
 
 export const ticketReplies = sqliteTable('ticketReply', {
-  id : integer('id').primaryKey({ autoIncrement: true }),
-  ticketId : integer('ticket_id').notNull().references(() => tickets.id),
-  userId : integer('user_id').notNull().references(() => users.id),
-  content : text('content').notNull(),
-  createdAt : integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date())
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  ticketId: integer('ticket_id').notNull().references(() => tickets.id),
+  userId: integer('user_id').notNull().references(() => users.id),
+  content: text('content').notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date())
 })
 
 export type TicketReply = typeof ticketReplies.$inferSelect
