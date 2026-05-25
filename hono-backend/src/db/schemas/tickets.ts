@@ -1,6 +1,15 @@
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
 import { users } from './users.js'
 
+export const ticketPriorities = sqliteTable('ticketPriority', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  color: text('color').default('#AAAAAA'),
+  name: text('name').notNull()
+})
+
+export type TicketPriority = typeof ticketPriorities.$inferSelect
+export type NewTicketPriority = typeof ticketPriorities.$inferInsert
+
 export const tickets = sqliteTable('ticket', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   priorityId: integer('priority_id').notNull().references(() => ticketPriorities.id),
@@ -14,15 +23,6 @@ export const tickets = sqliteTable('ticket', {
 
 export type Ticket = typeof tickets.$inferSelect
 export type NewTicket = typeof tickets.$inferInsert
-
-export const ticketPriorities = sqliteTable('ticketPriority', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  color: text('color').default('#AAAAAA'),
-  name: text('name').notNull()
-})
-
-export type TicketPriority = typeof ticketPriorities.$inferSelect
-export type NewTicketPriority = typeof ticketPriorities.$inferInsert
 
 export const ticketReplies = sqliteTable('ticketReply', {
   id: integer('id').primaryKey({ autoIncrement: true }),

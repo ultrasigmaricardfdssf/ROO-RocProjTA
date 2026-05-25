@@ -1,12 +1,22 @@
+// npm run db:generate
+// npm run db:migrate
+
 import Database from 'better-sqlite3'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
-import * as users from './schemas/users.js'
 
-const schema = { ...users }
+import * as userSchema     from './schemas/users.js'
+import * as questionSchema from './schemas/questions.js'
+import * as ticketSchema   from './schemas/tickets.js'
+
+const schema = { ...userSchema, ...questionSchema, ...ticketSchema }
 
 const sqlite = new Database('app.db')
-
 sqlite.pragma('journal_mode = WAL')
+sqlite.pragma('foreign_keys = ON')
 
-export const db = drizzle(sqlite, { schema })
-export type DB = typeof db
+export const db = drizzle(sqlite, { schema }) // drizzle deez
+export type DB  = typeof db
+
+export * from './schemas/users.js'
+export * from './schemas/questions.js'
+export * from './schemas/tickets.js'

@@ -7,9 +7,9 @@ const COOKIE_NAME = 'auth_token'
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 
 export interface SessionPayload {
-  userId: string
+  userId: number
   email: string
-  role: number
+  role: string
   exp?: number
 }
 
