@@ -9,5 +9,21 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
+  },
+  server: {
+    proxy: {
+      '/auth': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
+      '/forums': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
+      '/tickets': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
+    }
   }
 })

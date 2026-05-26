@@ -20,10 +20,15 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function fetchMe() {
-    const res  = await fetch('/auth/me', { credentials: 'include' })
+  try {
+    const res = await fetch('/auth/me', { credentials: 'include' })
+    if (!res.ok) { setUser(null); return }
     const data = await res.json()
-    setUser(data.user)
+    setUser(data.user ?? null)
+  } catch {
+    setUser(null)
   }
+}
 
   const isLoggedIn = computed(() => !!user.value)
   const isAdmin    = computed(() => user.value?.role === 'admin')
