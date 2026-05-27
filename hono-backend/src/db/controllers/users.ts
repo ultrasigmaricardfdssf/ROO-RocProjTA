@@ -13,6 +13,7 @@ export async function getUserById(id: number) {
       roleId:      userRoles.id,
       roleName:    userRoles.name,
       roleColor:   userRoles.color,
+      canAsk:      userRoles.canAsk,
       canReply:        userRoles.canReply,
       canDeleteReply:  userRoles.canDeleteReply,
       canPostTicket:   userRoles.canPostTicket,

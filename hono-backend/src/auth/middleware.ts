@@ -2,6 +2,10 @@ import type { Context, Next } from 'hono'
 import { getSession } from './session.js'
 import { AuthError, ForbiddenError } from './errors.js'
 
+export enum PriviledgeType {
+  PostQuestion, PostReply, DeleteReply, PostTicket, ManageTicket
+}
+
 export async function withSession(c: Context, next: Next) {
   const session = await getSession(c)
   c.set('session', session)
@@ -15,15 +19,20 @@ export async function requireAuth(c: Context, next: Next) {
   await next()
 }
 
-export async function requireAdmin(c: Context, next: Next) {
+export async function requireAdmin(c: Context, next: Next, type: PriviledgeType) {
   const session = await getSession(c)
   if (!session) throw new AuthError('You must be logged in', 'NOT_AUTHENTICATED')
-  if (session.role !== 'admin') throw new ForbiddenError('Admins only')
+  const isAuthorized = type == PriviledgeType.PostQuestion && session.canAsk
+    || type == PriviledgeType.PostReply && session.canReply
+    || type == PriviledgeType.DeleteReply && session.canDeleteReply
+    || type == PriviledgeType.PostTicket && session.canPostTicket
+    || type == PriviledgeType.ManageTicket && session.canAcceptTicket
+  if (!isAuthorized) throw new ForbiddenError('Admins only')
   c.set('session', session)
   await next()
 }
 
-export function requireOwnerOrAdmin(getTargetUserId: (c: Context) => string | undefined) {
+export function requireOwnerOrAdmin(getTargetUserId: (c: Context) => number | undefined, type : PriviledgeType | null = null) {
   return async (c: Context, next: Next) => {
     const session = await getSession(c)
     if (!session) throw new AuthError('You must be logged in', 'NOT_AUTHENTICATED')
@@ -32,9 +41,14 @@ export function requireOwnerOrAdmin(getTargetUserId: (c: Context) => string | un
     if (!targetId) throw new ForbiddenError('Missing resource ID')
 
     const isOwner = session.userId === targetId
-    const isAdmin = session.role === 'admin'
+    const isAuthorized = type == PriviledgeType.PostQuestion && session.canAsk
+      || type == PriviledgeType.PostReply && session.canReply
+      || type == PriviledgeType.DeleteReply && session.canDeleteReply
+      || type == PriviledgeType.PostTicket && session.canPostTicket
+      || type == PriviledgeType.ManageTicket && session.canAcceptTicket
+      || type == null
 
-    if (!isOwner && !isAdmin) throw new ForbiddenError('You can only edit your own profile')
+    if (!isOwner && !isAuthorized) throw new ForbiddenError('You can only edit your own profile')
 
     c.set('session', session)
     await next()

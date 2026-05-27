@@ -4,6 +4,7 @@ export const userRoles = sqliteTable('userRole', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   name : text('name').notNull(),
   color: text('color').default('#AAAAAA'),
+  canAsk: integer('canAsk', { mode: 'boolean' }).notNull().default(true),
   canReply: integer('canReply', { mode: 'boolean' }).notNull().default(true), // huhhhhhh
   canDeleteReply: integer('canDeleteReply', { mode: 'boolean' }).notNull().default(false), // huhhhhhh
   canPostTicket: integer('canPostTicket', { mode: 'boolean' }).notNull().default(false), // huhhhhhh

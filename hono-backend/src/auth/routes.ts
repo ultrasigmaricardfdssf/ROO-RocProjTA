@@ -15,6 +15,7 @@ import {
   getRepliesForQuestion, createReply, deleteReply,
   getAllTags, createTag,
 } from '../db/controllers/questions.js'
+import { getUserById } from '../db/controllers/users.js'
 
 const forums = new Hono()
 
@@ -34,7 +35,6 @@ const loginSchema = z.object({
 auth.post('/register', zValidator('json', registerSchema), async (c) => {
   const { username, email, password } = c.req.valid('json')
 
-  // Drizzle syntax — not Prisma
   const existing = await db.query.users.findFirst({ where: eq(users.email, email) })
   if (existing) throw new ValidationError('Email already in use')
 
@@ -42,12 +42,24 @@ auth.post('/register', zValidator('json', registerSchema), async (c) => {
 
   const [user] = await db
     .insert(users)
-    .values({ username, email, password: hashed })  // role/notified use column defaults
+    .values({ username, email, password: hashed })
     .returning()
 
-  await createSession(c, { userId: user.id, email: user.email, roleId: user.role })
+  const full = await getUserById(user.id)
+  if (!full) throw new ValidationError('Registration failed')
 
-  return c.json({ user: { id: user.id, username: user.username, email: user.email } }, 201)
+  await createSession(c, { userId: full.id,
+    email: full.email,
+    roleId: full.roleId!,
+    roleName: full.roleName!,
+    canAsk: full.canAsk!,
+    canReply: full.canReply!,
+    canDeleteReply: full.canDeleteReply!,
+    canPostTicket: full.canPostTicket!,
+    canAcceptTicket: full.canAcceptTicket!
+  })
+
+  return c.json({ user: { id: full.id, username: full.username, email: full.email } }, 201)
 })
 
 auth.post('/login', zValidator('json', loginSchema), async (c) => {
@@ -58,8 +70,20 @@ auth.post('/login', zValidator('json', loginSchema), async (c) => {
 
   const valid = await verifyPassword(password, user.password)
   if (!valid) throw new AuthError('Invalid credentials', 'INVALID_CREDENTIALS')
+  
+  const full = await getUserById(user.id);
+  if(!full) throw new AuthError('Missing user profile', 'USER_NULL')
 
-  await createSession(c, { userId: user.id, email: user.email, role: user.role })
+  await createSession(c, { userId: full.id,
+    email: full.email,
+    roleId: full.roleId!,
+    roleName: full.roleName!,
+    canAsk: full.canAsk!,
+    canReply: full.canReply!,
+    canDeleteReply: full.canDeleteReply!,
+    canPostTicket: full.canPostTicket!,
+    canAcceptTicket: full.canAcceptTicket!
+  })
 
   return c.json({ user: { id: user.id, username: user.username, email: user.email } })
 })
@@ -73,7 +97,7 @@ auth.get('/me', async (c) => {
   const session = await getSession(c)
   if (!session) return c.json({ user: null })
 
-  const user = await db.query.users.findFirst({ where: eq(users.id, session.userId) })
+  const user = await getUserById(session.userId)
   if (!user) return c.json({ user: null })
 
   return c.json({
@@ -81,14 +105,12 @@ auth.get('/me', async (c) => {
       id: user.id,
       username: user.username,
       email: user.email,
-      role: user.role,
+      role: user.roleName,
       notified: user.notified,
       description: user.description,
     }
   })
 })
-
-// ── Questions ──────────────────────────────────────────────────────────────
 
 forums.get('/recent', async (c) => {
   const limit = Number(c.req.query('limit') ?? 20)

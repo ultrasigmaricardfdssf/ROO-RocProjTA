@@ -9,7 +9,13 @@ const COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 export interface SessionPayload {
   userId: number
   email: string
-  role: string
+  roleId: number,
+  roleName: string,
+  canAsk: boolean,
+  canReply: boolean,
+  canDeleteReply: boolean,
+  canPostTicket: boolean,
+  canAcceptTicket: boolean,
   exp?: number
 }
 
