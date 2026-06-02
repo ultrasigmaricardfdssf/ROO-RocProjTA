@@ -32,13 +32,14 @@ export async function requireAdmin(c: Context, next: Next, type: PriviledgeType)
   await next()
 }
 
-export function requireOwnerOrAdmin(getTargetUserId: (c: Context) => number | undefined, type : PriviledgeType | null = null) {
+export function requireOwnerOrAdmin(getTargetUserId: (c: Context) => string | undefined, type : PriviledgeType | null = null) {
   return async (c: Context, next: Next) => {
     const session = await getSession(c)
     if (!session) throw new AuthError('You must be logged in', 'NOT_AUTHENTICATED')
 
-    const targetId = getTargetUserId(c)
-    if (!targetId) throw new ForbiddenError('Missing resource ID')
+    const rawId    = getTargetUserId(c)
+    const targetId = rawId ? Number(rawId) : NaN
+    if (isNaN(targetId)) throw new ForbiddenError('Missing or invalid resource ID')
 
     const isOwner = session.userId === targetId
     const isAuthorized = type == PriviledgeType.PostQuestion && session.canAsk

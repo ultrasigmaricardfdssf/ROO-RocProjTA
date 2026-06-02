@@ -37,9 +37,7 @@ await db.insert(questionSchema.questionTags).values([
   { id: 8, name: 'C#', short: 'C#' },
   { id: 9, name: 'Lua', short: 'LUA' },
   { id: 10, name: 'Web', short: 'WEB' },
-])
-
-await db.insert(userSchema.users).values([]).onConflictDoNothing() // to test connection apparently???? thanks?? hwat about all other inserts man :d
+]).onConflictDoNothing()
 
 console.log('im seeding it successfully')
 sqlite.close() // bye bye

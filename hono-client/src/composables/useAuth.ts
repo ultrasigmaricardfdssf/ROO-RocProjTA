@@ -22,6 +22,7 @@ export function useAuth() {
   }
 
   async function register(username: string, email: string, password: string) {
+    console.log("yea");
     const res = await fetch("/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

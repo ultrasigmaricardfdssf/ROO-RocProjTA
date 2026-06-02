@@ -33,6 +33,7 @@ const loginSchema = z.object({
 })
 
 auth.post('/register', zValidator('json', registerSchema), async (c) => {
+  console.log("NIGGAAAAAAA");
   const { username, email, password } = c.req.valid('json')
 
   const existing = await db.query.users.findFirst({ where: eq(users.email, email) })
@@ -100,16 +101,21 @@ auth.get('/me', async (c) => {
   const user = await getUserById(session.userId)
   if (!user) return c.json({ user: null })
 
-  return c.json({
-    user: {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      role: user.roleName,
-      notified: user.notified,
-      description: user.description,
-    }
-  })
+  return c.json({ user: {
+    id:              user.id,
+    username:        user.username,
+    email:           user.email,
+    notified:        user.notified,
+    description:     user.description,
+    roleId:          user.roleId,
+    roleName:        user.roleName,
+    roleColor:       user.roleColor,
+    canAsk:          user.canAsk,
+    canReply:        user.canReply,
+    canDeleteReply:  user.canDeleteReply,
+    canPostTicket:   user.canPostTicket,
+    canAcceptTicket: user.canAcceptTicket,
+  }})
 })
 
 forums.get('/recent', async (c) => {
@@ -154,8 +160,6 @@ forums.delete('/:id', requireAuth, async (c) => {
   return c.json({ ok: true })
 })
 
-// ── Replies ────────────────────────────────────────────────────────────────
-
 forums.get('/:id/replies', async (c) => {
   const questionId = Number(c.req.param('id'))
   return c.json(await getRepliesForQuestion(questionId))
@@ -179,8 +183,6 @@ forums.delete('/replies/:replyId', requireAuth, async (c) => {
   await deleteReply(Number(c.req.param('replyId')))
   return c.json({ ok: true })
 })
-
-// ── Tags ───────────────────────────────────────────────────────────────────
 
 forums.get('/tags', async (c) => {
   return c.json(await getAllTags())

@@ -4,7 +4,7 @@
       <div class="settings-header">
         <h1 class="settings-title">Settings</h1>
         <RouterLink to="/account" class="account-link"
-          >(Account customization here) (link)</RouterLink
+          >(Account customization here)</RouterLink
         >
       </div>
 
@@ -107,7 +107,7 @@
 
 <script setup lang="ts">
   import { ref } from "vue";
-  import AppLayout from "@/layouts/AppLayout.vue";
+  import AppLayout from "@/AppLayout.vue";
   import SettingsSection from "@/components/SettingsSection.vue";
   import { useAuthStore } from "@/stores/auth.js";
 

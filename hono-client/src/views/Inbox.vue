@@ -54,7 +54,7 @@
 
 <script setup lang="ts">
   import { ref, computed } from "vue";
-  import AppLayout from "@/layouts/AppLayout.vue";
+  import AppLayout from "@/AppLayout.vue";
   
   const tabs = [
     { key: "recv", label: "recv" },

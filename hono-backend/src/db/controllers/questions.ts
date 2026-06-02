@@ -59,12 +59,12 @@ export async function getQuestionById(id: number) {
       tagId:       questionTags.id,
       tagName:     questionTags.name,
       tagColor:    questionTags.color,
+      tagShort:    questionTags.short,
     })
     .from(questions)
     .leftJoin(users,        eq(questions.userId, users.id))
     .leftJoin(questionTags, eq(questions.tagId,  questionTags.id))
     .where(eq(questions.id, id))
-
   return question ?? null
 }
 
@@ -80,11 +80,12 @@ export async function deleteQuestion(id: number) {
 export async function getRepliesForQuestion(questionId: number) {
   return db
     .select({
-      id:        replies.id,
-      content:   replies.content,
-      createdAt: replies.createdAt,
-      authorId:  users.id,
-      authorName:users.username,
+      id:         replies.id,
+      content:    replies.content,
+      createdAt:  replies.createdAt,
+      isSolution: replies.isSolution,
+      authorId:   users.id,
+      authorName: users.username,
     })
     .from(replies)
     .leftJoin(users, eq(replies.userId, users.id))
@@ -108,4 +109,18 @@ export async function getAllTags() {
 export async function createTag(data: { name: string; short?: string; color?: string }) {
   const [t] = await db.insert(questionTags).values(data).returning()
   return t
+}
+
+export async function setSolutionReply(questionId: number, replyId: number | null) {
+  await db
+    .update(replies)
+    .set({ isSolution: false })
+    .where(eq(replies.questionId, questionId))
+
+  if (replyId !== null) {
+    await db
+      .update(replies)
+      .set({ isSolution: true })
+      .where(eq(replies.id, replyId))
+  }
 }
