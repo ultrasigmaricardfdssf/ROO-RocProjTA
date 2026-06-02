@@ -39,7 +39,12 @@
     <section class="topic-section">
       <h2 class="section-title center">Recent topics</h2>
       <div class="topic-list">
-        <TopicCard v-for="t in recentTopics" :key="t.id" :topic="t" />
+        <TopicCard
+            v-for="q in recentTopics"
+            :key="q.id"
+            :topic="toTopicCard(q)"
+            @click="router.push(`/forums/${q.id}`)"
+          />
       </div>
     </section>
 
@@ -48,69 +53,60 @@
     <section class="topic-section">
       <h2 class="section-title center">Most viewed topics</h2>
       <div class="topic-list">
-        <TopicCard v-for="t in mostViewed" :key="t.id" :topic="t" />
+        <TopicCard
+            v-for="q in recentTopics"
+            :key="q.id"
+            :topic="toTopicCard(q)"
+            @click="router.push(`/forums/${q.id}`)"
+          />
       </div>
     </section>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
+  import { ref, onMounted, computed } from 'vue';
+  import { useRouter } from 'vue-router';
   import AppLayout from "@/AppLayout.vue";
   import TopicCard from "@/components/TopicCard.vue";
   import TicketCard from "@/components/TicketCard.vue";
   import { useAuthStore } from "@/stores/auth.js";
+  import {
+    useForums, type QuestionSummary
+  } from "@/composables/useForums.js"
+
+  function toTopicCard(q: QuestionSummary) {
+  return {
+    id:         String(q.id),
+    title:      q.title,
+    preview:    q.content ?? '',
+    authorName: q.authorName ?? 'Unknown',
+    postedAgo:  timeAgo(q.createdAt),
+    views:      q.reactionCount ?? 0,
+    tags:       q.tagShort ? [q.tagShort] : [],
+    replyCount: q.replyCount,
+    tagColor:   q.tagColor,
+  }
+}
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins  = Math.floor(diff / 60000)
+  const hours = Math.floor(mins / 60)
+  const days  = Math.floor(hours / 24)
+  if (mins < 1)   return 'just now'
+  if (mins < 60)  return `${mins}m ago`
+  if (hours < 24) return `${hours}h ago`
+  return `${days}d ago`
+}
+
+  const router = useRouter();
 
   const authStore = useAuthStore();
+  const forums = useForums();
 
   // --- replace with APIs ---
-  const recentTopics = [
-    {
-      id: "1",
-      title: "am i a true sigma?",
-      preview:
-        "i use linux but all my friedns say im gay so i wanted to know does anyone know where i can...",
-      authorName: "Sigma boy",
-      postedAgo: "6 weeks ago",
-      views: 800,
-      tags: ["ntf"],
-      replyCount: 69,
-    },
-    {
-      id: "2",
-      title: "am i a true sigma?",
-      preview:
-        "i use linux but all my friedns say im gay so i wanted to know does anyone know where i can...",
-      authorName: "Sigma boy",
-      postedAgo: "6 weeks ago",
-      views: 800,
-      tags: ["ntf"],
-      replyCount: 69,
-    },
-    {
-      id: "3",
-      title: "am i a true sigma?",
-      preview:
-        "i use linux but all my friedns say im gay so i wanted to know does anyone know where i can...",
-      authorName: "Sigma boy",
-      postedAgo: "6 weeks ago",
-      views: 800,
-      tags: ["ntf"],
-      replyCount: 69,
-    },
-  ];
-  const mostViewed = [
-    {
-      id: "4",
-      title: "am i a true sigma?",
-      preview:
-        "i use linux but all my friedns say im gay so i wanted to know does anyone know where i can...",
-      authorName: "Sigma boy",
-      postedAgo: "6 weeks ago",
-      views: 800,
-      tags: ["ntf"],
-      replyCount: 69,
-    },
-  ];
+  const recentTopics = ref<QuestionSummary[]>([])
   const openTickets = [
     {
       id: "t1",
@@ -129,6 +125,8 @@
   ];
 
   const myTickets: typeof openTickets = [];
+
+  onMounted(async () => {recentTopics.value = await forums.getRecent()})
 </script>
 
 <style scoped>

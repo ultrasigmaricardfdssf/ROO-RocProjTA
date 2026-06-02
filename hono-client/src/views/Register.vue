@@ -65,7 +65,11 @@
             </div>
 
             <!-- password strength bar -->
-            <div class="strength-wrap" v-if="password.length > 0">
+            <div class="strength-wrap" :style="{
+              opacity: password.length > 0 ? 1.0 : 0.0,
+              transform: `rotateY(${password.length > 0 ? 360 : 0}deg)`,
+              filter: `blur(${password.length > 0 ? 0 : 32}px)`
+              }">
               <div class="strength-bar">
                 <div
                   class="strength-fill"
@@ -368,6 +372,7 @@ async function pickFile(){
   align-items: center;
   gap: 8px;
   margin-top: 4px;
+  transition: transform 1s, opacity 1s, filter 1s .1s;
 }
 .strength-bar {
   flex: 1;

@@ -1,5 +1,5 @@
 <template>
-  <RouterLink :to="`/forums/topic/${topic.id}`" class="topic-card">
+  <RouterLink :to="`forums/topic/${topic.id}`" class="topic-card">
     <div class="topic-avatar dashed">
       <img
         v-if="topic.authorAvatar"
