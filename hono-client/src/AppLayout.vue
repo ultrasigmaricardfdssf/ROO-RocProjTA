@@ -139,9 +139,7 @@ const initials = computed(() => {
 });
 
 function doSearch() {
-  if (searchQuery.value.trim()) {
     router.push({ path: "/search", query: { q: searchQuery.value.trim() } });
-  }
 }
 
 async function handleLogout() {

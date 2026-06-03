@@ -40,11 +40,12 @@
       <h2 class="section-title center">Recent topics</h2>
       <div class="topic-list">
         <TopicCard
-            v-for="q in recentTopics"
-            :key="q.id"
-            :topic="toTopicCard(q)"
-            @click="router.push(`/forums/${q.id}`)"
-          />
+  v-for="q in recentTopics"
+  :key="q.id"
+  :topic="toTopicCard(q)"
+  @click="router.push(`/forums/${q.id}`)"
+  @tagClick="(tag) => router.push({ path: '/search', query: { tagId: String(tagIdByShort(tag)) } })"
+/>
       </div>
     </section>
 
@@ -54,11 +55,12 @@
       <h2 class="section-title center">Most viewed topics</h2>
       <div class="topic-list">
         <TopicCard
-            v-for="q in recentTopics"
-            :key="q.id"
-            :topic="toTopicCard(q)"
-            @click="router.push(`/forums/${q.id}`)"
-          />
+  v-for="q in topTopics"
+  :key="q.id"
+  :topic="toTopicCard(q)"
+  @click="router.push(`/forums/${q.id}`)"
+  @tagClick="(tag) => router.push({ path: '/search', query: { tagId: String(tagIdByShort(tag)) } })"
+/>
       </div>
     </section>
   </AppLayout>
@@ -75,7 +77,32 @@
     useForums, type QuestionSummary
   } from "@/composables/useForums.js"
 
-  function toTopicCard(q: QuestionSummary) {
+  const router = useRouter();
+
+  const authStore = useAuthStore();
+  const forums = useForums();
+
+  const recentTopics = ref<QuestionSummary[]>([])
+const topTopics    = ref<QuestionSummary[]>([])
+const tags = ref([])
+const loadingTopics      = ref(true)
+
+function tagIdByShort(short: string): number | undefined {
+  return tags.value.find((t: any) => t.short === short || t.name === short)?.id
+}
+
+function timeAgo(dateStr: string): string {
+  const diff  = Date.now() - new Date(dateStr).getTime()
+  const mins  = Math.floor(diff / 60000)
+  const hours = Math.floor(mins / 60)
+  const days  = Math.floor(hours / 24)
+  if (mins < 1)   return 'just now'
+  if (mins < 60)  return `${mins}m ago`
+  if (hours < 24) return `${hours}h ago`
+  return `${days}d ago`
+}
+
+function toTopicCard(q: QuestionSummary) {
   return {
     id:         String(q.id),
     title:      q.title,
@@ -89,24 +116,19 @@
   }
 }
 
-function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const mins  = Math.floor(diff / 60000)
-  const hours = Math.floor(mins / 60)
-  const days  = Math.floor(hours / 24)
-  if (mins < 1)   return 'just now'
-  if (mins < 60)  return `${mins}m ago`
-  if (hours < 24) return `${hours}h ago`
-  return `${days}d ago`
-}
+const filteredTop = computed(() => topTopics.value)
 
-  const router = useRouter();
-
-  const authStore = useAuthStore();
-  const forums = useForums();
-
-  // --- replace with APIs ---
-  const recentTopics = ref<QuestionSummary[]>([])
+ onMounted(async () => {
+  const [recent, top, tagList] = await Promise.allSettled([
+    forums.getRecent(20),
+    forums.getTop(10),
+    forums.getTags(),
+  ])
+  if (recent.status  === 'fulfilled') recentTopics.value = recent.value
+  if (top.status     === 'fulfilled') topTopics.value    = top.value
+  if (tagList.status === 'fulfilled') tags.value         = tagList.value
+  loadingTopics.value = false
+})
   const openTickets = [
     {
       id: "t1",
@@ -125,8 +147,6 @@ function timeAgo(dateStr: string): string {
   ];
 
   const myTickets: typeof openTickets = [];
-
-  onMounted(async () => {recentTopics.value = await forums.getRecent()})
 </script>
 
 <style scoped>

@@ -40,17 +40,12 @@
             </div>
 
             <div class="question-actions">
-              <span
-                v-if="question.tagName"
-                class="tag-badge pill"
-                :style="{
-                  background: question.tagColor ?? '#aaa',
-                  color: '#fff',
-                  borderColor: question.tagColor ?? '#aaa',
-                }"
-                @click="router.push(`/search%${reply.authorId}`)"
-                >{{ question.tagShort ?? question.tagName }}</span
-              >
+              <button
+  v-if="question.tagName"
+  class="tag-badge pill"
+  :style="{ background: question.tagColor ?? '#aaa', color: '#fff', borderColor: question.tagColor ?? '#aaa' }"
+  @click="router.push({ path: '/search', query: { tagId: String(question.tagId) } })"
+>{{ question.tagShort ?? question.tagName }}</button>
 
               <button
                 v-if="canDelete"

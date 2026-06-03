@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { auth } from './auth/routes.js'
 import { forums } from './routes/forums.js'
+import { search } from './routes/search.js'
 import { usersRoute } from './routes/users.js'
 import { requireAuth, requireOwnerOrAdmin } from './auth/middleware.js'
 import { AppError } from './auth/errors.js'
@@ -19,6 +20,7 @@ app.onError((err, c) => {
 app.route('/auth', auth)
 app.route('/forums', forums)
 app.route('/users', usersRoute)
+app.route('/search', search)
 
 app.get('/posts', requireAuth, async (c) => {
   // 

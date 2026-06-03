@@ -39,6 +39,7 @@
             :key="q.id"
             :topic="toTopicCard(q)"
             @click="router.push(`/forums/${q.id}`)"
+            @tagClick="(tag) => router.push({ path: '/search', query: { tagId: String(tagIdByShort(tag)) } })"
           />
           <p v-if="!filteredRecent.length" class="empty-msg">No questions yet. Be the first!</p>
         </div>
@@ -58,6 +59,7 @@
             :key="q.id"
             :topic="toTopicCard(q)"
             @click="router.push(`/forums/${q.id}`)"
+            @tagClick="(tag) => router.push({ path: '/search', query: { tagId: String(tagIdByShort(tag)) } })"
           />
           <p v-if="!filteredTop.length" class="empty-msg">Nothing here yet.</p>
         </div>
@@ -183,6 +185,10 @@ const filteredTop = computed(() =>
     ? topQuestions.value
     : topQuestions.value.filter(q => q.tagId === selectedTag.value)
 )
+
+function tagIdByShort(short: string): number | undefined {
+  return tags.value.find(t => t.short === short || t.name === short)?.id
+}
 
 async function submitQuestion() {
   newError.value = ''
