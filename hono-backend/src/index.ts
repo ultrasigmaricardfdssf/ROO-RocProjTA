@@ -1,8 +1,10 @@
 import { Hono } from 'hono'
 import { auth } from './auth/routes.js'
-import { forums } from './routes/forums.js'
 import { search } from './routes/search.js'
-import { usersRoute } from './routes/users.js'
+import { forums }             from './routes/forums.js'
+import { ticketsRoute }       from './routes/tickets.js'
+import { notificationsRoute } from './routes/notifications.js'
+import { usersRoute }         from './routes/users.js'
 import { requireAuth, requireOwnerOrAdmin } from './auth/middleware.js'
 import { AppError } from './auth/errors.js'
 import { serve } from '@hono/node-server';
@@ -20,6 +22,8 @@ app.onError((err, c) => {
 app.route('/auth', auth)
 app.route('/forums', forums)
 app.route('/users', usersRoute)
+app.route('/notifications', notificationsRoute)
+app.route('/tickets',       ticketsRoute)
 app.route('/search', search)
 
 app.get('/posts', requireAuth, async (c) => {

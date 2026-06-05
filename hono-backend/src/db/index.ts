@@ -7,8 +7,9 @@ import { drizzle } from 'drizzle-orm/better-sqlite3'
 import * as userSchema     from './schemas/users.js'
 import * as questionSchema from './schemas/questions.js'
 import * as ticketSchema   from './schemas/tickets.js'
+import * as notifSchema    from './schemas/notifications.js'
 
-const schema = { ...userSchema, ...questionSchema, ...ticketSchema }
+const schema = { ...userSchema, ...questionSchema, ...ticketSchema, ...notifSchema }
 
 const sqlite = new Database('app.db')
 sqlite.pragma('journal_mode = WAL')
@@ -20,3 +21,4 @@ export type DB  = typeof db
 export * from './schemas/users.js'
 export * from './schemas/questions.js'
 export * from './schemas/tickets.js'
+export * from './schemas/notifications.js'

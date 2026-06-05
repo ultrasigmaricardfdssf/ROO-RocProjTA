@@ -4,19 +4,19 @@ import { db, tickets, ticketReplies, ticketPriorities, users } from '../index.js
 export async function getOpenTickets(limit = 50) {
   return db
     .select({
-      id:           tickets.id,
-      subject:      tickets.subject,
-      description:  tickets.description,
-      createdAt:    tickets.createdAt,
-      requesterId:  users.id,
-      requesterName:users.username,
-      priorityId:   ticketPriorities.id,
-      priorityName: ticketPriorities.name,
-      priorityColor:ticketPriorities.color,
+      id:            tickets.id,
+      subject:       tickets.subject,
+      description:   tickets.description,
+      createdAt:     tickets.createdAt,
+      requesterId:   users.id,
+      requesterName: users.username,
+      priorityId:    ticketPriorities.id,
+      priorityName:  ticketPriorities.name,
+      priorityColor: ticketPriorities.color,
     })
     .from(tickets)
-    .leftJoin(users,             eq(tickets.requesterId, users.id))
-    .leftJoin(ticketPriorities,  eq(tickets.priorityId,  ticketPriorities.id))
+    .leftJoin(users,            eq(tickets.requesterId, users.id))
+    .leftJoin(ticketPriorities, eq(tickets.priorityId,  ticketPriorities.id))
     .where(isNull(tickets.resolvedAt))
     .orderBy(desc(tickets.createdAt))
     .limit(limit)
@@ -25,13 +25,13 @@ export async function getOpenTickets(limit = 50) {
 export async function getTicketsByUser(userId: number) {
   return db
     .select({
-      id:           tickets.id,
-      subject:      tickets.subject,
-      description:  tickets.description,
-      createdAt:    tickets.createdAt,
-      resolvedAt:   tickets.resolvedAt,
-      priorityName: ticketPriorities.name,
-      priorityColor:ticketPriorities.color,
+      id:            tickets.id,
+      subject:       tickets.subject,
+      description:   tickets.description,
+      createdAt:     tickets.createdAt,
+      resolvedAt:    tickets.resolvedAt,
+      priorityName:  ticketPriorities.name,
+      priorityColor: ticketPriorities.color,
     })
     .from(tickets)
     .leftJoin(ticketPriorities, eq(tickets.priorityId, ticketPriorities.id))
@@ -42,25 +42,30 @@ export async function getTicketsByUser(userId: number) {
 export async function getTicketById(id: number) {
   const [ticket] = await db
     .select({
-      id:           tickets.id,
-      subject:      tickets.subject,
-      description:  tickets.description,
-      createdAt:    tickets.createdAt,
-      resolvedAt:   tickets.resolvedAt,
-      requesterId:  tickets.requesterId,
-      requesterName:users.username,
-      priorityName: ticketPriorities.name,
-      priorityColor:ticketPriorities.color,
+      id:            tickets.id,
+      subject:       tickets.subject,
+      description:   tickets.description,
+      createdAt:     tickets.createdAt,
+      resolvedAt:    tickets.resolvedAt,
+      requesterId:   tickets.requesterId,
+      requesterName: users.username,
+      priorityId:    tickets.priorityId,
+      priorityName:  ticketPriorities.name,
+      priorityColor: ticketPriorities.color,
     })
     .from(tickets)
     .leftJoin(users,            eq(tickets.requesterId, users.id))
     .leftJoin(ticketPriorities, eq(tickets.priorityId,  ticketPriorities.id))
     .where(eq(tickets.id, id))
-
   return ticket ?? null
 }
 
-export async function createTicket(data: { requesterId: number; subject: string; description?: string; priorityId?: number }) {
+export async function createTicket(data: {
+  requesterId: number
+  subject: string
+  description?: string
+  priorityId?: number
+}) {
   const [t] = await db
     .insert(tickets)
     .values({ priorityId: 1, ...data })
