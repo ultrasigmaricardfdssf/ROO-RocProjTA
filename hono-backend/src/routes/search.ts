@@ -13,9 +13,9 @@ search.get('/', async (c) => {
   const author  = c.req.query('author')?.trim() ?? ''
   const limit   = Math.min(Number(c.req.query('limit') ?? 30), 100)
 
-  if (!q && !tagId && !author) {
+  /*if (!q && !tagId && !author) {
     throw new AppError('Provide at least one search parameter', 400, 'NO_QUERY')
-  }
+  }*/
 
   const conditions = []
 

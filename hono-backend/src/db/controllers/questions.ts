@@ -6,15 +6,19 @@ import {
 
 // ── Questions ──────────────────────────────────────────────────────────────
 
+const solutionSubquery = sql`(SELECT id FROM forumReply WHERE question_id = ${questions.id} AND is_solution = 1 LIMIT 1)`
+
 export async function getRecentQuestions(limit = 20) {
+  const views = sql<number>`(SELECT COUNT(*) FROM forumView WHERE question_id = ${questions.id})`
+  
   return db
     .select({
       id:            questions.id,
       title:         questions.title,
       content:       questions.content,
       createdAt:     questions.createdAt,
-      viewCount:     questions.viewCount,
-      authorId:      users.id,
+      viewCount:     views,
+    authorId:      users.id,
       authorName:    users.username,
       tagId:         questionTags.id,
       tagName:       questionTags.name,
@@ -22,6 +26,7 @@ export async function getRecentQuestions(limit = 20) {
       tagColor:      questionTags.color,
       replyCount:    sql<number>`(SELECT COUNT(*) FROM forumReply WHERE question_id = ${questions.id})`,
       reactionCount: sql<number>`(SELECT COUNT(*) FROM forumReaction WHERE forum_id = ${questions.id})`,
+      solutionReplyId: solutionSubquery
     })
     .from(questions)
     .leftJoin(users,        eq(questions.userId, users.id))
@@ -31,13 +36,15 @@ export async function getRecentQuestions(limit = 20) {
 }
 
 export async function getMostViewedQuestions(limit = 10) {
+  const views = sql<number>`(SELECT COUNT(*) FROM forumView WHERE question_id = ${questions.id})`
+
   return db
     .select({
       id:            questions.id,
       title:         questions.title,
       content:       questions.content,
       createdAt:     questions.createdAt,
-      viewCount:     questions.viewCount,
+      viewCount:     views,
       authorId:      users.id,
       authorName:    users.username,
       tagId:         questionTags.id,
@@ -46,11 +53,12 @@ export async function getMostViewedQuestions(limit = 10) {
       tagColor:      questionTags.color,
       replyCount:    sql<number>`(SELECT COUNT(*) FROM forumReply WHERE question_id = ${questions.id})`,
       reactionCount: sql<number>`(SELECT COUNT(*) FROM forumReaction WHERE forum_id = ${questions.id})`,
+      solutionReplyId: solutionSubquery
     })
     .from(questions)
     .leftJoin(users,        eq(questions.userId, users.id))
     .leftJoin(questionTags, eq(questions.tagId,  questionTags.id))
-    .orderBy(desc(questions.viewCount))
+    .orderBy(desc(views))
     .limit(limit)
 }
 
@@ -62,7 +70,7 @@ export async function getQuestionById(id: number) {
       content:       questions.content,
       createdAt:     questions.createdAt,
       editedAt:      questions.editedAt,
-      viewCount:     questions.viewCount,
+      viewCount:     sql<number>`(SELECT COUNT(*) FROM forumView WHERE question_id = ${questions.id})`,
       authorId:      users.id,
       authorName:    users.username,
       tagId:         questionTags.id,
@@ -70,6 +78,7 @@ export async function getQuestionById(id: number) {
       tagColor:      questionTags.color,
       tagShort:      questionTags.short,
       reactionCount: sql<number>`(SELECT COUNT(*) FROM forumReaction WHERE forum_id = ${questions.id})`,
+      solutionReplyId: solutionSubquery
     })
     .from(questions)
     .leftJoin(users,        eq(questions.userId, users.id))
@@ -78,12 +87,19 @@ export async function getQuestionById(id: number) {
   return question ?? null
 }
 
-// Increment view count — call when a question page is opened
-export async function incrementViewCount(id: number) {
-  await db
-    .update(questions)
-    .set({ viewCount: sql`${questions.viewCount} + 1` })
-    .where(eq(questions.id, id))
+export async function getReplyReactionCount(replyId : number) {
+  const [row] = await db
+    .select({ count: sql`COUNT(*)` })
+    .from(replyReactions)
+    .where(eq(replyReactions.replyId, replyId))
+  return row?.count ?? 0
+}
+
+// view question
+export async function incrementViewCount(questionId: number, userId: number) {
+  return await db.run(
+    sql`INSERT OR IGNORE INTO forumView (question_id, user_id) VALUES (${questionId}, ${userId})`
+  )
 }
 
 export async function createQuestion(data: { userId: number; title: string; content?: string; tagId?: number }) {

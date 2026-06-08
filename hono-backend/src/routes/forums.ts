@@ -11,15 +11,15 @@ import {
   toggleQuestionReaction, toggleReplyReaction, getUserReactionsForQuestion,
   toggleQuestionFollow, isFollowingQuestion, getQuestionFollowers,
   getAllTags, createTag,
+  getReplyReactionCount,
 } from '../db/controllers/questions.js'
 import {
   notifyForumReply, notifyFollowers, notifyReplyReaction,
   notifyQuestionReaction, notifyReplyMarkedSolution,
 } from '../db/controllers/notifications.js'
 import { getUserById } from '../db/controllers/users.js'
-import { replies } from '../db/index.js'
-import { eq } from 'drizzle-orm'
-import { db } from '../db/index.js'
+import { eq, desc, sql } from 'drizzle-orm'
+import { db, questions, replies, questionTags, users } from '../db/index.js'
 
 const forums = new Hono()
 
@@ -44,9 +44,6 @@ forums.get('/:id', async (c) => {
   const question = await getQuestionById(id)
   if (!question) throw new AppError('Not found', 404, 'NOT_FOUND')
 
-  // Increment view count every time the question is opened
-  await incrementViewCount(id)
-
   // If logged in, also return whether user liked/follows this question
   const session = await getSession(c)
   let userReactions = { likedQuestion: false, likedReplyIds: [] as number[] }
@@ -55,6 +52,7 @@ forums.get('/:id', async (c) => {
   if (session) {
     userReactions = await getUserReactionsForQuestion(id, session.userId)
     isFollowing   = await isFollowingQuestion(id, session.userId)
+    incrementViewCount(id, session.userId)
   }
 
   return c.json({ ...question, ...userReactions, isFollowing })
@@ -181,7 +179,8 @@ forums.post('/replies/:replyId/react', requireAuth, async (c) => {
     await notifyReplyReaction(reply.userId, session!.userId, reply.questionId, user!.username)
   }
 
-  return c.json({ liked })
+  const reactionCount = await getReplyReactionCount(replyId)
+  return c.json({ liked, reactionCount })
 })
 
 // ── Follows ────────────────────────────────────────────────────────────────
@@ -204,6 +203,58 @@ forums.post('/tags', requireAuth, zValidator('json', z.object({
   const session = await getSession(c)
   if (!session!.canDeleteReply) throw new ForbiddenError('Admins only')
   return c.json(await createTag(c.req.valid('json')), 201)
+})
+
+// GET /forums/by-user/:userId — all questions by a user
+forums.get('/by-user/:userId', requireAuth, async (c) => {
+  const userId = Number(c.req.param('userId'))
+  if (isNaN(userId)) throw new AppError('Invalid ID', 400, 'INVALID_ID')
+
+  const rows = await db
+    .select({
+      id:            questions.id,
+      title:         questions.title,
+      content:       questions.content,
+      createdAt:     questions.createdAt,
+      viewCount:     sql<number>`(SELECT COUNT(*) FROM forumView WHERE question_id = ${questions.id})`,
+      authorId:      users.id,
+      authorName:    users.username,
+      tagId:         questionTags.id,
+      tagName:       questionTags.name,
+      tagShort:      questionTags.short,
+      tagColor:      questionTags.color,
+      replyCount:    sql<number>`(SELECT COUNT(*) FROM forumReply WHERE question_id = ${questions.id})`,
+      reactionCount: sql<number>`(SELECT COUNT(*) FROM forumReaction WHERE forum_id = ${questions.id})`,
+    })
+    .from(questions)
+    .leftJoin(users,        eq(questions.userId, users.id))
+    .leftJoin(questionTags, eq(questions.tagId,  questionTags.id))
+    .where(eq(questions.userId, userId))
+    .orderBy(desc(questions.createdAt))
+
+  return c.json(rows)
+})
+
+// GET /forums/replies-by-user/:userId — all replies by a user
+forums.get('/replies-by-user/:userId', requireAuth, async (c) => {
+  const userId = Number(c.req.param('userId'))
+  if (isNaN(userId)) throw new AppError('Invalid ID', 400, 'INVALID_ID')
+
+  const rows = await db
+    .select({
+      id:            replies.id,
+      content:       replies.content,
+      createdAt:     replies.createdAt,
+      isSolution:    replies.isSolution,
+      questionId:    questions.id,
+      questionTitle: questions.title,
+    })
+    .from(replies)
+    .leftJoin(questions, eq(replies.questionId, questions.id))
+    .where(eq(replies.userId, userId))
+    .orderBy(desc(replies.createdAt))
+
+  return c.json(rows)
 })
 
 export { forums }

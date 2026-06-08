@@ -54,6 +54,14 @@
               >
                 Delete
               </button>
+              <button 
+          v-if="authStore.isLoggedIn"
+          class="pill mark-solution-btn" 
+          :class="{ following: question.isFollowing }"
+          @click="handleFollow"
+        >
+          🔔 {{ question.isFollowing ? 'Following Thread' : 'Follow for Updates' }}
+        </button>
             </div>
           </div>
 
@@ -67,14 +75,24 @@
             Edited {{ timeAgo(question.editedAt) }}
           </div>
 
-          <button
-            v-if="solutionReply"
-            class="pill solution-link"
-            @click="scrollToSolution"
+          <span v-if="question.solutionReplyId" class="badge-solved">✓ Solved</span>
+          <button 
+            class="reaction-trigger" 
+            :class="{ active: question.likedQuestion }"
+            :disabled="!authStore.isLoggedIn"
+            @click="toggleQuestionLike"
           >
-            <span class="solution-check">✓</span> Solution
+            <span class="heart-icon">{{ question.likedQuestion ? '❤️' : '🤍' }}</span>
+            <span class="count">{{ question.reactionCount }}</span>
           </button>
+          <span class="views-count">👁 {{ question.viewCount }} views</span>
         </div>
+
+        <div v-if="question.solutionReplyId && solutionReply" class="card solution-highlight-card">
+        <div class="highlight-banner">🌟 Accepted Solution</div>
+        <p class="summary-text">"{{ solutionReply.content }}"</p>
+        <a :href="'#reply-' + question.solutionReplyId" class="jump-link">Jump to full answer ↓</a>
+      </div>
 
         <div class="replies-section">
           <h2 class="replies-title">
@@ -90,10 +108,11 @@
             <div
               v-for="reply in replies"
               :key="reply.id"
+              :id="'reply-' + reply.id"
               class="reply-card"
               :class="{
                 'reply-card--own': reply.authorId === authStore.user?.id,
-                'reply-card--solution': reply.isSolution,
+                'reply-card--solution': reply == solutionReply,
               }"
             >
               <div
@@ -133,6 +152,17 @@
                 </div>
                 <p class="reply-content">{{ reply.content }}</p>
               </div>
+              <button 
+                class="reaction-trigger"
+                :class="{ active: question.likedReplyIds?.includes(reply.id) }"
+                :disabled="!authStore.isLoggedIn"
+                @click="toggleReplyLike(reply)"
+              >
+                <span class="heart-icon">
+                  {{ question.likedReplyIds?.includes(reply.id) ? '❤️' : '🤍' }}
+                </span>
+                <span class="count">{{ reply.reactionCount }}</span>
+              </button>
             </div>
 
             <p v-if="!replies.length" class="empty-msg">
@@ -187,6 +217,7 @@ import {
   type Reply,
 } from "@/composables/useForums";
 import { useAuthStore } from "@/stores/auth";
+import { useTopicUtils } from '@/composables/useTopicUtils'
 
 const route = useRoute();
 const router = useRouter();
@@ -214,17 +245,12 @@ const canDelete = computed(() => {
   );
 });
 
-function timeAgo(dateStr: string | null): string {
-  if (!dateStr) return "";
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  const hours = Math.floor(mins / 60);
-  const days = Math.floor(hours / 24);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  if (hours < 24) return `${hours}h ago`;
-  return `${days}d ago`;
-}
+const isAuthor = computed(() => {
+  if (!authStore.user || !question.value) return false;
+  return authStore.user.id === question.value.authorId;
+});
+
+const { timeAgo } = useTopicUtils({ value: [] })
 
 async function submitReply() {
   if (!replyContent.value.trim()) return;
@@ -260,6 +286,39 @@ function scrollToSolution() {
   const id = solutionReply.value?.id;
   if (!id) return;
   replyRefs.value[id]?.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+async function toggleQuestionLike() {
+  if (!question.value) return
+  try {
+    const res = await forums.reactToQuestion(questionId.value)
+    question.value.likedQuestion = res.liked
+    question.value.reactionCount = res.reactionCount
+  } catch (e) { console.error(e) }
+}
+
+async function toggleReplyLike(reply: any) {
+  try {
+    const res = await forums.reactToReply(reply.id)
+    reply.reactionCount = res.reactionCount
+    
+    // Mirror standard inclusion map values toggling
+    if (res.liked) {
+      if (!question.value.likedReplyIds.includes(reply.id)) {
+        question.value.likedReplyIds.push(reply.id)
+      }
+    } else {
+      question.value.likedReplyIds = question.value.likedReplyIds.filter((id: number) => id !== reply.id)
+    }
+  } catch (e) { console.error(e) }
+}
+
+async function handleFollow() {
+  try {
+    const res = await forums.apiFetch?.(`/forums/${questionId.value}/follow`, { method: 'POST' }) 
+      || await fetch(`/api/forums/${questionId.value}/follow`, { method: 'POST', credentials: 'include' }).then(r => r.json());
+    question.value.isFollowing = res.following
+  } catch (e) { console.error(e) }
 }
 
 async function toggleSolution(replyId: number) {
@@ -696,6 +755,187 @@ onMounted(async () => {
   background: var(--navy);
   color: #fff;
   border: none;
+}
+/* ==========================================
+   REACTIONS & LIKING STYLES
+   ========================================== */
+.reaction-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg, #f8f9fa);
+  border: 1.5px solid var(--border, #e9ecef);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted, #6c757d);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+/* Hover state for logged-in users */
+.reaction-trigger:hover:not(:disabled) {
+  background: #fff0f1;
+  border-color: #ffcdd2;
+  color: #d32f2f;
+  transform: translateY(-1px);
+}
+
+/* Active / Liked state */
+.reaction-trigger.active {
+  background: #ffebee;
+  border-color: #ffcdd2;
+  color: #c62828;
+}
+
+.reaction-trigger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.heart-icon {
+  font-size: 14px;
+  transition: transform 0.2s ease;
+}
+
+.reaction-trigger:active:not(:disabled) .heart-icon {
+  transform: scale(1.3);
+}
+
+/* Context styling inside components */
+.views-count {
+  font-size: 13px;
+  color: var(--text-light, #adb5bd);
+  margin-left: auto; /* Pushes view count to the right side of the card footer */
+}
+
+
+/* ==========================================
+   WATCHING / FOLLOWING STYLES
+   ========================================== */
+.question-actions .follow-btn {
+  background: #fff;
+  border: 1.5px solid var(--navy, #0a2540) !important;
+  color: var(--navy, #0a2540);
+  font-weight: 700;
+  padding: 6px 14px;
+  transition: all 0.2s ease;
+}
+
+.question-actions .follow-btn:hover {
+  background: var(--blue-soft, #eaf2f9);
+}
+
+/* Active following state */
+.question-actions .follow-btn.following {
+  background: var(--navy, #0a2540);
+  border-color: var(--navy, #0a2540) !important;
+  color: #fff;
+}
+
+.question-actions .follow-btn.following:hover {
+  background: var(--navy-dark, #051424);
+  border-color: var(--navy-dark, #051424) !important;
+}
+
+
+/* ==========================================
+   SOLUTIONS & ACCEPTED ANSWERS STYLES
+   ========================================== */
+/* Solved status indicators */
+.badge-solved {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1.5px solid #a5d6a7;
+  padding: 4px 12px;
+  border-radius: var(--radius-sm, 4px);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Top highlighted solution layout preview panel */
+.solution-highlight-card {
+  border-left: 4px solid #2e7d32;
+  background: #f9fdf9;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.highlight-banner {
+  font-weight: 800;
+  color: #2e7d32;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.summary-text {
+  font-size: 14.5px;
+  font-style: italic;
+  color: var(--text-muted, #495057);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.jump-link {
+  font-size: 13px;
+  color: var(--navy, #0a2540);
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-block;
+  width: fit-content;
+}
+
+.jump-link:hover {
+  text-decoration: underline;
+}
+
+/* Modify reply card when selected as the solution wrapper */
+.reply-card--solution {
+  border: 2px solid #2e7d32 !important;
+  background: #fbfdfb !important;
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.05);
+}
+
+/* Mark Solution Action Toggle Pill Button */
+.mark-solution-btn {
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #fff;
+  color: var(--text-muted, #6c757d);
+  border: 1.5px solid var(--border, #e9ecef) !important;
+  transition: all 0.15s ease;
+}
+
+.mark-solution-btn:hover {
+  background: #f1f8e9;
+  color: #2e7d32;
+  border-color: #c5e1a5 !important;
+}
+
+/* Solution button state when already activated */
+.mark-solution-btn.marked {
+  background: #2e7d32;
+  color: #fff;
+  border-color: #2e7d32 !important;
+}
+
+.mark-solution-btn.marked:hover {
+  background: #c62828;
+  color: #fff;
+  border-color: #c62828 !important;
+  /* Provides a destructive cue when hovering an active match to pull it */
+  content: "Unmark"; 
 }
 
 .spinner {

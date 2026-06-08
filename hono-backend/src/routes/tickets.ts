@@ -11,6 +11,7 @@ import {
 } from '../db/controllers/tickets.js'
 import { notifyTicketReply, notifyTicketResolved } from '../db/controllers/notifications.js'
 import { getUserById } from '../db/controllers/users.js'
+import { ticketPriorities, db } from '../db/index.js'
 
 const ticketsRoute = new Hono()
 
@@ -29,7 +30,11 @@ ticketsRoute.get('/mine', requireAuth, async (c) => {
   return c.json(await getTicketsByUser(session!.userId))
 })
 
-// GET /tickets/:id
+ticketsRoute.get('/priorities', async (c) => {
+  const priorities = await db.select().from(ticketPriorities)
+  return c.json(priorities)
+})
+
 ticketsRoute.get('/:id', requireAuth, async (c) => {
   const session = await getSession(c)
   const id      = Number(c.req.param('id'))

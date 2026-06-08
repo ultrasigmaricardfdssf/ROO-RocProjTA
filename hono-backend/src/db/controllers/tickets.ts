@@ -101,3 +101,7 @@ export async function createTicketReply(data: { ticketId: number; userId: number
   const [r] = await db.insert(ticketReplies).values(data).returning()
   return r
 }
+
+export async function getPriorities() {
+  return db.select().from(ticketPriorities)
+}

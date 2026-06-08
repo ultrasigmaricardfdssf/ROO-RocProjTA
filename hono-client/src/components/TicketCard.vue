@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
   export interface Ticket {
-    id: string;
+    id: number;
     title: string;
     preview: string;
     authorName: string;

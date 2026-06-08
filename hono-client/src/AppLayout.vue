@@ -16,15 +16,15 @@
           >frms</RouterLink
         >
         <RouterLink
-          to="/crms"
+          to="/chat"
           class="pill pill-nav"
-          :class="{ active: route.path.startsWith('/crms') }"
+          :class="{ active: route.path.startsWith('/chat') }"
           >crms</RouterLink
         >
         <RouterLink
-          to="/tickets"
+          to="/my-tickets"
           class="pill pill-nav"
-          :class="{ active: route.path.startsWith('/tickets') }"
+          :class="{ active: route.path.startsWith('/my-tickets') }"
           >tckts</RouterLink
         >
       </div>
@@ -69,7 +69,7 @@
           <Transition name="dropdown">
             <div v-if="dropdownOpen" class="dropdown-menu card" @click.stop>
               <RouterLink
-                to="/account"
+                :to="`/user/${authStore.user?.id}`"
                 class="dropdown-item"
                 @click="dropdownOpen = false"
                 >Account</RouterLink
@@ -98,6 +98,13 @@
                 @click="dropdownOpen = false"
                 >Inbox</RouterLink
               >
+              <RouterLink
+                v-if="authStore.isAdmin"
+                to="/admin"
+                class="dropdown-item"
+                @click="dropdownOpen = false"
+                >Admin panel</RouterLink
+              >
               <button class="dropdown-item logout" @click="handleLogout">
                 Log out
               </button>
@@ -119,6 +126,7 @@ import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { useAuth } from "@/composables/useAuth";
+import { useNotifications } from '@/composables/useNotifs';
 
 const route = useRoute();
 const router = useRouter();
@@ -129,8 +137,7 @@ const dropdownOpen = ref(false);
 const searchQuery = ref("");
 const avatarRef = ref<HTMLElement | null>(null);
 
-// Placeholder — wire to your notifications store later
-const unreadCount = ref(3);
+const { unreadCount, fetchUnreadCount } = useNotifications()
 
 const initials = computed(() => {
   const u = authStore.user;
@@ -153,7 +160,7 @@ function onClickOutside(e: MouseEvent) {
     dropdownOpen.value = false;
   }
 }
-onMounted(() => document.addEventListener("click", onClickOutside));
+onMounted(() => {document.addEventListener("click", onClickOutside); fetchUnreadCount();});
 onUnmounted(() => document.removeEventListener("click", onClickOutside));
 </script>
 
@@ -299,6 +306,7 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside));
 .dropdown-item:hover {
   background: var(--blue-soft);
 }
+.dropdown-item.admin-item { color: var(--red); }
 .dropdown-item.logout {
   color: var(--red);
   border-top: 1px dashed var(--border);

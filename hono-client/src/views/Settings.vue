@@ -3,7 +3,7 @@
     <div class="settings-page">
       <div class="settings-header">
         <h1 class="settings-title">Settings</h1>
-        <RouterLink to="/account" class="account-link"
+        <RouterLink :to="`/user/${authStore.user?.id}`" class="account-link"
           >(Account customization here)</RouterLink
         >
       </div>
@@ -61,7 +61,7 @@
         <div class="section-divider" />
 
         <SettingsSection
-          v-if="authStore.isAdmin || isSupport"
+          v-if="isSupport"
           title="Tickets"
           accent="orange"
         >
@@ -75,7 +75,7 @@
           </label>
         </SettingsSection>
 
-        <div v-if="authStore.isAdmin || isSupport" class="section-divider" />
+        <div v-if="isSupport" class="section-divider" />
 
         <SettingsSection title="Chat rooms" accent="default">
           <label class="toggle-row">
@@ -112,7 +112,7 @@
   import { useAuthStore } from "@/stores/auth.js";
 
   const authStore = useAuthStore();
-  const isSupport = false; // wire to role check
+  const isSupport = authStore.isSupport;
 
   const creds = ref({ current: "", desired: "", confirm: "" });
   const pwMsg = ref("");

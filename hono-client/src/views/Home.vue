@@ -9,7 +9,7 @@
           <TicketCard
             v-for="t in openTickets"
             :key="t.id"
-            :ticket="t"
+            :ticket="{id: t.id, title: t.subject, preview: t.description || '', authorName: t.requesterName, openedAgo: timeAgo(t.createdAt)}"
             variant="orange"
           />
           <p v-if="!openTickets.length" class="empty-msg">No open tickets.</p>
@@ -24,7 +24,7 @@
           <TicketCard
             v-for="t in myTickets"
             :key="t.id"
-            :ticket="t"
+            :ticket="{id: t.id, title: t.subject, preview: t.description || '', authorName: t.requesterName, openedAgo: timeAgo(t.createdAt)}"
             variant="blue"
           />
           <p v-if="!myTickets.length" class="empty-msg">
@@ -76,77 +76,40 @@
   import {
     useForums, type QuestionSummary
   } from "@/composables/useForums.js"
+  import { useTickets, type TicketSummary, type OpenTicket } from "@/composables/useTickets.js"
+  import { useTopicUtils } from '@/composables/useTopicUtils'
 
   const router = useRouter();
 
   const authStore = useAuthStore();
   const forums = useForums();
+  const tickets = useTickets();
 
   const recentTopics = ref<QuestionSummary[]>([])
 const topTopics    = ref<QuestionSummary[]>([])
 const tags = ref([])
 const loadingTopics      = ref(true)
 
-function tagIdByShort(short: string): number | undefined {
-  return tags.value.find((t: any) => t.short === short || t.name === short)?.id
-}
-
-function timeAgo(dateStr: string): string {
-  const diff  = Date.now() - new Date(dateStr).getTime()
-  const mins  = Math.floor(diff / 60000)
-  const hours = Math.floor(mins / 60)
-  const days  = Math.floor(hours / 24)
-  if (mins < 1)   return 'just now'
-  if (mins < 60)  return `${mins}m ago`
-  if (hours < 24) return `${hours}h ago`
-  return `${days}d ago`
-}
-
-function toTopicCard(q: QuestionSummary) {
-  return {
-    id:         String(q.id),
-    title:      q.title,
-    preview:    q.content ?? '',
-    authorName: q.authorName ?? 'Unknown',
-    postedAgo:  timeAgo(q.createdAt),
-    views:      q.reactionCount ?? 0,
-    tags:       q.tagShort ? [q.tagShort] : [],
-    replyCount: q.replyCount,
-    tagColor:   q.tagColor,
-  }
-}
+const { toTopicCard, timeAgo, tagSearchRoute, tagIdByShort } = useTopicUtils(tags)
 
 const filteredTop = computed(() => topTopics.value)
 
+const openTickets = ref<OpenTicket[]>([]);
+const myTickets: typeof openTickets = [];
+
  onMounted(async () => {
-  const [recent, top, tagList] = await Promise.allSettled([
+  const [recent, top, tagList, ticketList] = await Promise.allSettled([
     forums.getRecent(20),
     forums.getTop(10),
     forums.getTags(),
+    tickets.getOpenTickets()
   ])
   if (recent.status  === 'fulfilled') recentTopics.value = recent.value
   if (top.status     === 'fulfilled') topTopics.value    = top.value
   if (tagList.status === 'fulfilled') tags.value         = tagList.value
+  if (ticketList.status === 'fulfilled') openTickets.value      = ticketList.value
   loadingTopics.value = false
 })
-  const openTickets = [
-    {
-      id: "t1",
-      title: "how delete system32",
-      preview: "pls need help",
-      authorName: "User",
-      openedAgo: "Opened 2 seconds ago",
-    },
-    {
-      id: "t2",
-      title: "how delete system32",
-      preview: "pls need help",
-      authorName: "User",
-      openedAgo: "Opened 2 seconds ago",
-    },
-  ];
-
-  const myTickets: typeof openTickets = [];
 </script>
 
 <style scoped>

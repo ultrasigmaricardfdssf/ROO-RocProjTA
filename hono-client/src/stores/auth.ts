@@ -48,7 +48,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   return {
     user, hydrated,
-    isLoggedIn, isAdmin, isSupport,
+    isLoggedIn, isAdmin, isSupport, canAsk, canReply,
     canDeleteReply, canPostTicket, canAcceptTicket,
     setUser, fetchMe,
   }

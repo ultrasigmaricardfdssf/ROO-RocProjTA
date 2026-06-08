@@ -129,6 +129,7 @@ import AppLayout from '@/AppLayout.vue'
 import TopicCard from '@/components/TopicCard.vue'
 import { useForums, type QuestionSummary, type Tag } from '@/composables/useForums'
 import { useAuthStore } from '@/stores/auth'
+import { useTopicUtils } from '@/composables/useTopicUtils'
 
 const router    = useRouter()
 const authStore = useAuthStore()
@@ -149,31 +150,7 @@ const newTagId     = ref<number | undefined>(undefined)
 const newError     = ref('')
 const submitting   = ref(false)
 
-// Convert API shape → TopicCard shape
-function toTopicCard(q: QuestionSummary) {
-  return {
-    id:         String(q.id),
-    title:      q.title,
-    preview:    q.content ?? '',
-    authorName: q.authorName ?? 'Unknown',
-    postedAgo:  timeAgo(q.createdAt),
-    views:      q.reactionCount ?? 0,
-    tags:       q.tagShort ? [q.tagShort] : [],
-    replyCount: q.replyCount,
-    tagColor:   q.tagColor,
-  }
-}
-
-function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const mins  = Math.floor(diff / 60000)
-  const hours = Math.floor(mins / 60)
-  const days  = Math.floor(hours / 24)
-  if (mins < 1)   return 'just now'
-  if (mins < 60)  return `${mins}m ago`
-  if (hours < 24) return `${hours}h ago`
-  return `${days}d ago`
-}
+const { toTopicCard, timeAgo, tagSearchRoute, tagIdByShort } = useTopicUtils(tags)
 
 const filteredRecent = computed(() =>
   selectedTag.value === null
@@ -185,10 +162,6 @@ const filteredTop = computed(() =>
     ? topQuestions.value
     : topQuestions.value.filter(q => q.tagId === selectedTag.value)
 )
-
-function tagIdByShort(short: string): number | undefined {
-  return tags.value.find(t => t.short === short || t.name === short)?.id
-}
 
 async function submitQuestion() {
   newError.value = ''

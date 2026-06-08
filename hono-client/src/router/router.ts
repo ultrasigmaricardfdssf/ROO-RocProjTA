@@ -44,6 +44,12 @@ const router = createRouter({
     },
     { path: '/forums',     component: () => import('@/views/ForumsIndex.vue') },
     { path: '/forums/:id', component: () => import('@/views/ForumQuestion.vue') },
+    { path: '/my-forums',   component: () => import('@/views/OwnedForums.vue'),   meta: { requiresAuth: true } },
+    { path: '/my-tickets',       component: () => import('@/views/OwnedTickets.vue'),    meta: { requiresAuth: true } },
+    { path: '/tickets/:id',      component: () => import('@/views/TicketDetails.vue'), meta: { requiresAuth: true } },
+    { path: '/admin',            component: () => import('@/views/AdminPanel.vue'),   meta: { requiresAuth: true } },
+    { path: '/chat',     component: () => import('@/views/Chatrooms.vue'), meta: { requiresAuth: true } },
+    { path: '/chat/:id', component: () => import('@/views/ChatroomView.vue'),  meta: { requiresAuth: true } },
   ],
 });
 

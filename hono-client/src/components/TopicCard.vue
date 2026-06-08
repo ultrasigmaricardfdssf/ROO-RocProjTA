@@ -11,7 +11,7 @@
     </div>
 
     <div class="topic-meta">
-      <span class="meta-time">Posted {{ topic.postedAgo }}, {{ topic.views }} views</span>
+      <span class="meta-time">Posted {{ topic.postedAgo }}, {{ topic.views }} view{{ topic.views != 1 ? "s" : "" }}</span>
       <div class="topic-tags">
         <button
           v-for="tag in topic.tags"

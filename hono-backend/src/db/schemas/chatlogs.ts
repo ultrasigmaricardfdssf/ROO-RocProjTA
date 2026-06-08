@@ -1,16 +1,15 @@
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
-import { createId } from '@paralleldrive/cuid2'
+import { users } from './users.js'
 
-export const users = sqliteTable('users', {
-  id:          text('id').primaryKey().$defaultFn(() => createId()),
-  username:    text('username').notNull().unique(),
-  email:       text('email').notNull().unique(),
-  password:    text('password').notNull(),
-  role:        integer('role').notNull().default(0),
-  notified:    integer('notified', { mode: 'boolean' }).notNull().default(true),
-  description: text('description'),
-  createdAt:   integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
+export const chatRooms = sqliteTable('chatRoom', {
+  id:        integer('id').primaryKey({ autoIncrement: true }),
+  title:     text('title').notNull().unique(),
+  createdBy: integer('created_by').notNull().references(() => users.id),
+  createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
+  closedAt:  integer('closed_at',  { mode: 'timestamp' }),
+  log:       text('log'),          // JSON string — saved when room closes
+  active:    integer('active', { mode: 'boolean' }).notNull().default(true),
 })
 
-export type User    = typeof users.$inferSelect
-export type NewUser = typeof users.$inferInsert
+export type ChatRoom    = typeof chatRooms.$inferSelect
+export type NewChatRoom = typeof chatRooms.$inferInsert

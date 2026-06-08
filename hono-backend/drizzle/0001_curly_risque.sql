@@ -43,7 +43,7 @@ CREATE TABLE `__new_forumQuestion` (
 	FOREIGN KEY (`tag_id`) REFERENCES `forumTag`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-INSERT INTO `__new_forumQuestion`("id", "user_id", "title", "content", "tag_id", "view_count", "created_at", "edited_at") SELECT "id", "user_id", "title", "content", "tag_id", "view_count", "created_at", "edited_at" FROM `forumQuestion`;--> statement-breakpoint
+INSERT INTO `__new_forumQuestion`("id", "user_id", "title", "content", "tag_id", "view_count", "created_at", "edited_at") SELECT "id", "user_id", "title", "content", "tag_id", 0, "created_at", "edited_at" FROM `forumQuestion`;--> statement-breakpoint
 DROP TABLE `forumQuestion`;--> statement-breakpoint
 ALTER TABLE `__new_forumQuestion` RENAME TO `forumQuestion`;--> statement-breakpoint
 PRAGMA foreign_keys=ON;

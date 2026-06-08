@@ -10,6 +10,7 @@ export interface QuestionSummary {
   tagShort: string | null;
   tagColor: string | null;
   replyCount: number;
+  viewCount: number,
   reactionCount: number;
 }
 
@@ -99,11 +100,19 @@ export function useForums() {
     questionId: number,
     replyId: number | null,
   ): Promise<void> {
-    return apiFetch(`/api/forums/${questionId}/solution`, {
+    return apiFetch(`/forums/${questionId}/solution`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ replyId }),
     });
+  }
+
+  async function reactToQuestion(id: number): Promise<{ liked: boolean; reactionCount: number }> {
+    return apiFetch(`/forums/${id}/react`, { method: "POST" });
+  }
+
+  async function reactToReply(replyId: number): Promise<{ liked: boolean; reactionCount: number }> {
+    return apiFetch(`/forums/replies/${replyId}/react`, { method: "POST" });
   }
 
   return {
@@ -116,6 +125,8 @@ export function useForums() {
     postReply,
     deleteQuestion,
     deleteReply,
-    setSolution
+    setSolution,
+    reactToQuestion,
+    reactToReply
   };
 }

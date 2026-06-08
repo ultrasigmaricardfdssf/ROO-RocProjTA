@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, integer, primaryKey } from 'drizzle-orm/sqlite-core'
 import { users } from './users.js'
 
 export const questionTags = sqliteTable('forumTag', {
@@ -17,7 +17,7 @@ export const questions = sqliteTable('forumQuestion', {
   title:     text('title').notNull(),
   content:   text('content'),
   tagId:     integer('tag_id').references(() => questionTags.id),
-  viewCount: integer('view_count').notNull().default(0),
+  //viewCount: integer('view_count').notNull().default(0), // KOKOT MRACIK AH YES LETS LET AN USER VIEW THE SAME THING A NIGGAZILION TIMES
   createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
   editedAt:  integer('edited_at',  { mode: 'timestamp' }),
 })
@@ -63,3 +63,13 @@ export const questionFollows = sqliteTable('forumFollow', {
 
 export type QuestionFollow    = typeof questionFollows.$inferSelect
 export type NewQuestionFollow = typeof questionFollows.$inferInsert
+
+export const questionView = sqliteTable('forumView', {
+  questionId: integer('question_id').notNull().references(() => questions.id),
+  userId:     integer('user_id').notNull().references(() => users.id),
+}, (table) => ({
+  pk: primaryKey({columns: [table.questionId, table.userId]}),
+}))
+
+export type QuestionView    = typeof questionFollows.$inferSelect
+export type NewQuestionView = typeof questionFollows.$inferInsert

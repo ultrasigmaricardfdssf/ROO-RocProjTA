@@ -32,15 +32,21 @@
                 :style="selectedTagId === tag.id
                   ? { background: tag.color ?? undefined, borderColor: tag.color ?? undefined, color: '#fff' }
                   : { borderColor: tag.color ?? undefined, color: tag.color ?? undefined }"
-                @click="selectedTagId = selectedTagId === tag.id ? undefined : tag.id"
+                @click="selectedTagId = selectedTagId === tag.id ? undefined : tag.id;"
               >{{ tag.short ?? tag.name }}</button>
             </div>
           </div>
         </div>
-        <button class="pill search-btn" :disabled="loading" @click="runSearch">
-          <span v-if="loading" class="spinner" />
-          <span v-else>Search</span>
-        </button>
+        <div style="display: flex; align-items: center; gap: 64px;">
+          <button class="pill search-btn" :disabled="loading" @click="runSearch">
+            <span v-if="loading" class="spinner" />
+            <span v-else>Search</span>
+          </button>
+          <div>
+            <label>Automatically search on tag change: </label>
+            <input type="checkbox" v-model="autoSearchOnTagChange">
+          </div>
+        </div>
       </div>
 
       <!-- Results -->
@@ -71,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppLayout from '@/AppLayout.vue'
 import TopicCard from '@/components/TopicCard.vue'
@@ -88,6 +94,7 @@ const results       = ref<QuestionSummary[]>([])
 const tags          = ref<Tag[]>([])
 const loading       = ref(false)
 const hasSearched   = ref(false)
+const autoSearchOnTagChange = ref(false)
 
 function toTopicCard(q: QuestionSummary) {
   return {
@@ -115,13 +122,16 @@ function timeAgo(dateStr: string): string {
 }
 
 async function runSearch() {
-  if (!query.value.trim() && !selectedTagId.value && !authorFilter.value.trim()) return
+  //if (!query.value.trim() && !selectedTagId.value && !authorFilter.value.trim()) return
   loading.value   = true
   hasSearched.value = true
+
   try {
     const params = new URLSearchParams()
     if (query.value.trim())        params.set('q',      query.value.trim())
     if (selectedTagId.value)       params.set('tagId',  String(selectedTagId.value))
+    else
+      params.set('tagId', null)
     if (authorFilter.value.trim()) params.set('author', authorFilter.value.trim())
 
     const res  = await fetch(`/api/search?${params}`, { credentials: 'include' })
@@ -145,8 +155,11 @@ onMounted(async () => {
   if (q)     query.value         = q
   if (tagId) selectedTagId.value = Number(tagId)
 
-  if (q || tagId) runSearch()
+  runSearch()
 })
+
+watch(autoSearchOnTagChange, ()=>{if(autoSearchOnTagChange.value) runSearch()}) // ??????
+watch(selectedTagId, ()=>{if(autoSearchOnTagChange.value) runSearch()})
 </script>
 
 <style scoped>
