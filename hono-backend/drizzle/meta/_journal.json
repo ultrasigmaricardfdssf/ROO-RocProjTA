@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1779916536978,
-      "tag": "0000_narrow_namorita",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1780698854216,
-      "tag": "0001_curly_risque",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1780866545407,
-      "tag": "0002_tidy_ulik",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1780934531228,
-      "tag": "0003_nifty_jetstream",
+      "when": 1781005699533,
+      "tag": "0000_cynical_vulture",
       "breakpoints": true
     }
   ]

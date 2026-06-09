@@ -60,7 +60,7 @@ import { useNotifications, notificationLink, type Notification } from '@/composa
 import { useTopicUtils } from '@/composables/useTopicUtils'
 
 const { notifications, loading, fetchNotifications, markRead, markAllRead } = useNotifications()
-const { timeAgo } = useTopicUtils({ value: [] })
+const { timeAgo } = useTopicUtils([])
 
 async function handleClick(n: Notification) {
   if (!n.read) await markRead(n.id)

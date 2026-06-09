@@ -1,17 +1,37 @@
-CREATE TABLE `users` (
+CREATE TABLE `chatRoom` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`username` text NOT NULL,
-	`email` text NOT NULL,
-	`password` text NOT NULL,
-	`role_id` integer DEFAULT 1 NOT NULL,
-	`notified` integer DEFAULT true NOT NULL,
-	`description` text,
+	`title` text NOT NULL,
+	`created_by` integer NOT NULL,
 	`created_at` integer,
-	FOREIGN KEY (`role_id`) REFERENCES `userRole`(`id`) ON UPDATE no action ON DELETE no action
+	`closed_at` integer,
+	`log` text,
+	`active` integer DEFAULT true NOT NULL,
+	FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `users_username_unique` ON `users` (`username`);--> statement-breakpoint
-CREATE UNIQUE INDEX `users_email_unique` ON `users` (`email`);--> statement-breakpoint
+CREATE UNIQUE INDEX `chatRoom_title_unique` ON `chatRoom` (`title`);--> statement-breakpoint
+CREATE TABLE `notification` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`user_id` integer NOT NULL,
+	`from_user_id` integer,
+	`type` text NOT NULL,
+	`ref_id` integer,
+	`ref_type` text,
+	`message` text NOT NULL,
+	`read` integer DEFAULT false NOT NULL,
+	`created_at` integer,
+	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`from_user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE TABLE `forumFollow` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`question_id` integer NOT NULL,
+	`user_id` integer NOT NULL,
+	FOREIGN KEY (`question_id`) REFERENCES `forumQuestion`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
 CREATE TABLE `forumReaction` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`forum_id` integer NOT NULL,
@@ -27,12 +47,20 @@ CREATE TABLE `forumTag` (
 	`short` text
 );
 --> statement-breakpoint
+CREATE TABLE `forumView` (
+	`question_id` integer NOT NULL,
+	`user_id` integer NOT NULL,
+	PRIMARY KEY(`question_id`, `user_id`),
+	FOREIGN KEY (`question_id`) REFERENCES `forumQuestion`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
 CREATE TABLE `forumQuestion` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`user_id` integer NOT NULL,
 	`title` text NOT NULL,
 	`content` text,
-	`tag_id` integer DEFAULT 1 NOT NULL,
+	`tag_id` integer,
 	`created_at` integer,
 	`edited_at` integer,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action,
@@ -88,6 +116,15 @@ CREATE TABLE `ticket` (
 	FOREIGN KEY (`resolved_by`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
+CREATE TABLE `userFollow` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`follower_id` integer NOT NULL,
+	`following_id` integer NOT NULL,
+	`created_at` integer,
+	FOREIGN KEY (`follower_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`following_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
 CREATE TABLE `userRole` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,
@@ -98,3 +135,18 @@ CREATE TABLE `userRole` (
 	`canPostTicket` integer DEFAULT false NOT NULL,
 	`canAcceptTicket` integer DEFAULT false NOT NULL
 );
+--> statement-breakpoint
+CREATE TABLE `users` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`username` text NOT NULL,
+	`email` text NOT NULL,
+	`password` text NOT NULL,
+	`role_id` integer DEFAULT 1 NOT NULL,
+	`notified` integer DEFAULT true NOT NULL,
+	`description` text,
+	`created_at` integer,
+	FOREIGN KEY (`role_id`) REFERENCES `userRole`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `users_username_unique` ON `users` (`username`);--> statement-breakpoint
+CREATE UNIQUE INDEX `users_email_unique` ON `users` (`email`);

@@ -72,7 +72,7 @@ function scheduleClose(room: ActiveRoom) {
   if (room.closeTimer) clearTimeout(room.closeTimer)
   room.closeTimer = setTimeout(() => {
     if (room.members.size === 0) closeRoom(room.id)
-  }, 1000) // showcase, defautl is 8sex (would prob bump to 30)
+  }, 8000) // showcase, defautl is 8sex (would prob bump to 30)
 }
 
 function cancelClose(room: ActiveRoom) {

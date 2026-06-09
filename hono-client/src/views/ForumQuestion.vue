@@ -75,7 +75,7 @@
             Edited {{ timeAgo(question.editedAt) }}
           </div>
 
-          <span v-if="question.solutionReplyId" class="badge-solved">✓ Solved</span>
+          <span v-if="solutionReply" class="badge-solved">✓ Solved</span>
           <button 
             class="reaction-trigger" 
             :class="{ active: question.likedQuestion }"

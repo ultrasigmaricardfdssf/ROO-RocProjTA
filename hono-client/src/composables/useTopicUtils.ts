@@ -10,6 +10,7 @@ export interface TopicCardShape {
   views: number
   tags: string[]
   replyCount: number
+  reactionCount: number
   tagColor: string | null
 }
 
@@ -38,6 +39,7 @@ export function useTopicUtils(tags: Ref<Tag[]>) {
       views:      q.viewCount ?? q.reactionCount ?? 0,
       tags:       q.tagShort ? [q.tagShort] : [],
       replyCount: q.replyCount ?? 0,
+      reactionCount: q.reactionCount ?? 0,
       tagColor:   q.tagColor ?? null,
     }
   }

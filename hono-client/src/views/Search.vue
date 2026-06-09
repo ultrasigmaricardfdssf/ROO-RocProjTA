@@ -54,7 +54,7 @@
         <p class="result-count">
           <template v-if="results.length">
             {{ results.length }} result{{ results.length === 1 ? '' : 's' }}
-            <span v-if="query"> for "<strong>{{ query }}</strong>"</span>
+            <span v-if="queryTemp"> for "<strong>{{ queryTemp }}</strong>"</span>
           </template>
           <template v-else>No results found.</template>
         </p>
@@ -88,6 +88,7 @@ const router = useRouter()
 const forums = useForums()
 
 const query         = ref('')
+const queryTemp     = ref('')
 const authorFilter  = ref('')
 const selectedTagId = ref<number | undefined>(undefined)
 const results       = ref<QuestionSummary[]>([])
@@ -137,6 +138,7 @@ async function runSearch() {
     const res  = await fetch(`/api/search?${params}`, { credentials: 'include' })
     const data = await res.json()
     results.value = data.results ?? []
+    queryTemp.value = query.value.trim();
   } catch {
     results.value = []
   } finally {
@@ -152,7 +154,7 @@ onMounted(async () => {
   const q     = route.query.q     as string | undefined
   const tagId = route.query.tagId as string | undefined
 
-  if (q)     query.value         = q
+  if (q) query.value = q
   if (tagId) selectedTagId.value = Number(tagId)
 
   runSearch()

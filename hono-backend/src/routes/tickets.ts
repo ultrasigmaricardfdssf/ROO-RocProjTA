@@ -17,7 +17,6 @@ const ticketsRoute = new Hono()
 
 // ── Tickets ────────────────────────────────────────────────────────────────
 
-// GET /tickets/open — admin/support only
 ticketsRoute.get('/open', requireAuth, async (c) => {
   const session = await getSession(c)
   if (!session!.canAcceptTicket) throw new ForbiddenError('Support/admin only')

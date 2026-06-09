@@ -22,6 +22,9 @@
         <span v-if="topic.replyCount !== undefined" class="reply-count dashed">
           {{ topic.replyCount }}
         </span>
+        <span v-if="topic.replyCount !== undefined" class="reply-count dashed">
+          {{ topic.reactionCount }}
+        </span>
       </div>
     </div>
   </div>
